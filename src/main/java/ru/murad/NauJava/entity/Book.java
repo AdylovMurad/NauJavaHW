@@ -1,41 +1,50 @@
 package ru.murad.NauJava.entity;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "books")
 public class Book {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false)
     private String title;
-    private String author;
 
-    public Book() {
-    }
+    @Column(unique = true)
+    private String isbn;
 
-    public Book(Long id, String title, String author) {
-        this.id = id;
-        this.title = title;
-        this.author = author;
-    }
+    private String language;
 
-    public Long getId() {
-        return id;
-    }
+    @Column(columnDefinition = "TEXT")
+    private String description;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    @Column(name = "publication_year")
+    private Integer publicationYear;
 
-    public String getTitle() {
-        return title;
-    }
+    @ManyToOne
+    @JoinColumn(name = "author_id")
+    private Author author;
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+    @ManyToOne
+    @JoinColumn(name = "genre_id")
+    private Genre genre;
 
-    public String getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+    public String getIsbn() { return isbn; }
+    public void setIsbn(String isbn) { this.isbn = isbn; }
+    public String getLanguage() { return language; }
+    public void setLanguage(String language) { this.language = language; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+    public Integer getPublicationYear() { return publicationYear; }
+    public void setPublicationYear(Integer publicationYear) { this.publicationYear = publicationYear; }
+    public Author getAuthor() { return author; }
+    public void setAuthor(Author author) { this.author = author; }
+    public Genre getGenre() { return genre; }
+    public void setGenre(Genre genre) { this.genre = genre; }
 }
