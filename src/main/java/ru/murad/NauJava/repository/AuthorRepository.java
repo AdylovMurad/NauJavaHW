@@ -1,9 +1,9 @@
 package ru.murad.NauJava.repository;
 
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import ru.murad.NauJava.entity.Author;
 
-@Repository
+@RepositoryRestResource(collectionResourceRel = "authors", path = "authors")
 public interface AuthorRepository extends CrudRepository<Author, Long> {
 }
