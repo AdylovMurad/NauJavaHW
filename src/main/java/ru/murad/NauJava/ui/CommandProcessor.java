@@ -2,7 +2,6 @@ package ru.murad.NauJava.ui;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ru.murad.NauJava.entity.Book;
 import ru.murad.NauJava.service.BookService;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,8 +40,10 @@ public class CommandProcessor {
                 }
                 case "read" -> {
                     Long id = Long.valueOf(args.get(1));
-                    var book = bookService.findById(id);
-                    System.out.println(book != null ? book.getTitle() + " [" + book.getAuthor() + "]" : "Не найдено");
+                    bookService.findById(id).ifPresentOrElse(
+                            book -> System.out.println(book.getTitle() + " [" + book.getAuthor().getFullName() + "]"),
+                            () -> System.out.println("Книга не найдена")
+                    );
                 }
                 case "update" -> {
                     if (args.size() < 4) {
@@ -58,13 +59,13 @@ public class CommandProcessor {
                 }
                 case "list" -> {
                     bookService.getAllBooks().forEach(b ->
-                            System.out.println(b.getId() + ": \"" + b.getTitle() + "\" — " + b.getAuthor()));
+                            System.out.println(b.getId() + ": \"" + b.getTitle() + "\" — " +
+                                    (b.getAuthor() != null ? b.getAuthor().getFullName() : "Автор не указан")));
                 }
                 case "delete" -> {
-                    bookService.deleteById(Long.valueOf(args.get(1)));
+                    bookService.deleteBook(Long.valueOf(args.get(1)));
                     System.out.println("Книга удалена.");
                 }
-                default -> System.out.println("Неизвестная команда.");
             }
         } catch (IndexOutOfBoundsException e) {
             System.out.println("Ошибка! Недостаточно аргументов. Пример: create 1 \"Война и мир\" Лев Толстой");

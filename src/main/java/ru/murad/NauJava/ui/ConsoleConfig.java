@@ -12,7 +12,7 @@ public class ConsoleConfig {
     @Autowired
     private CommandProcessor commandProcessor;
 
-    @Bean
+    // @Bean
     public CommandLineRunner commandScanner() {
         return args -> {
             Thread consoleThread = new Thread(() -> {
