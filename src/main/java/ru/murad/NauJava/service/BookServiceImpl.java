@@ -49,14 +49,17 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public void updateBook(Long id, String title, String authorName) {
-        bookRepository.findById(id).ifPresent(book -> {
-            book.setTitle(title);
-            if (book.getAuthor() != null) {
-                book.getAuthor().setFullName(authorName);
-                authorRepository.save(book.getAuthor());
-            }
-            bookRepository.save(book);
-        });
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Книга с ID " + id + " не найдена."));
+
+        book.setTitle(title);
+
+        if (book.getAuthor() != null) {
+            book.getAuthor().setFullName(authorName);
+            authorRepository.save(book.getAuthor());
+        }
+
+        bookRepository.save(book);
     }
 
     @Override

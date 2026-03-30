@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Список книг</title>
+    <style>
+        table { width: 50%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #f4f4f4; }
+    </style>
+</head>
+<body>
+<h1>Список книг в библиотеке</h1>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Название</th>
+        <th>ISBN</th>
+        <th>Аннотация</th>
+        <th>Язык</th>
+        <th>Год издания</th>
+        <th>Автор</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="book : ${books}">
+        <td th:text="${book.id}"></td>
+
+        <td th:text="${book.title}"></td>
+
+        <td th:text="${book.isbn}"></td>
+
+        <td th:text="${book.description}"></td>
+
+        <td th:text="${book.language}"></td>
+
+        <td th:text="${book.publicationYear}"></td>
+
+        <td th:text="${book.author != null ? book.author.fullName : 'Не указан'}"></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
