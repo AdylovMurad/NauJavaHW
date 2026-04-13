@@ -8,9 +8,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import ru.murad.NauJava.repository.UserRepository;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.stream.Collectors;
+import java.util.List;
 
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
@@ -29,13 +28,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         return new org.springframework.security.core.userdetails.User(
                 appUser.getUsername(),
                 appUser.getPassword(),
-                mapRolesToAuthorities(appUser.getRoles())
+                getAuthorities(appUser.getRole())
         );
     }
 
-    private Collection<? extends GrantedAuthority> mapRolesToAuthorities(String roles) {
-        return Arrays.stream(roles.split(","))
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role.trim()))
-                .collect(Collectors.toList());
+    private Collection<? extends GrantedAuthority> getAuthorities(ru.murad.NauJava.entity.UserRole role) {
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
     }
 }

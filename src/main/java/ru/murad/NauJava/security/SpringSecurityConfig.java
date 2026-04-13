@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import ru.murad.NauJava.entity.UserRole;
 
 @Configuration
 @EnableWebSecurity
@@ -25,13 +26,13 @@ public class SpringSecurityConfig {
         http
                 .authorizeHttpRequests((authz) -> authz
                         .requestMatchers("/registration", "/login", "/logout", "/error").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").hasRole("ADMIN")
-                        .requestMatchers("/delete/**").hasRole("ADMIN")
-                        .requestMatchers("/report/**").hasRole("ADMIN")
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").hasRole(UserRole.ADMIN.name())
+                        .requestMatchers("/delete/**").hasRole(UserRole.ADMIN.name())
+                        .requestMatchers("/report/**").hasRole(UserRole.ADMIN.name())
 
                         .anyRequest().authenticated()
                 )
-
+                .httpBasic(Customizer.withDefaults())
                 .formLogin(Customizer.withDefaults())
                 .logout((logout) -> logout.permitAll());
 
