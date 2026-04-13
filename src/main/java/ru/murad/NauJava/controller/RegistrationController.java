@@ -5,6 +5,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import ru.murad.NauJava.entity.User;
+import ru.murad.NauJava.entity.UserRole;
 import ru.murad.NauJava.service.UserService;
 
 @Controller
@@ -24,8 +25,8 @@ public class RegistrationController {
     @PostMapping("/registration")
     public String addUser(User user, Model model) {
         try {
-            if (user.getRoles() == null || user.getRoles().isEmpty()) {
-                user.setRoles("USER");
+            if (user.getRole() == null) {
+                user.setRole(UserRole.USER);
             }
 
             userService.saveUser(user);
