@@ -15,7 +15,8 @@ public class User {
     private String firstName;
     private String lastName;
 
-    private String roles;
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
 
     public User() {
     }
@@ -60,11 +61,11 @@ public class User {
         this.lastName = lastName;
     }
 
-    public String getRoles() {
-        return roles;
+    public UserRole getRole() {
+        return role;
     }
 
-    public void setRoles(String roles) {
-        this.roles = roles;
+    public void setRole(UserRole role) {
+        this.role = role;
     }
 }
