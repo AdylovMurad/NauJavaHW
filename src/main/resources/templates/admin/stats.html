@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Админ: Статистика</title>
+    <style>
+        table { width: 60%; border-collapse: collapse; margin-top: 16px; }
+        th, td { padding: 8px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #f4f4f4; }
+        .nav a { margin-right: 10px; }
+    </style>
+</head>
+<body>
+<div class="nav">
+    <a th:href="@{/admin/books}">Книги</a>
+    <a th:href="@{/admin/authors}">Авторы</a>
+    <a th:href="@{/admin/genres}">Жанры</a>
+    <a th:href="@{/admin/users}">Пользователи</a>
+    <a th:href="@{/admin/loans}">Выдачи</a>
+    <a th:href="@{/admin/stats}">Статистика</a>
+</div>
+
+<h1>Статистика</h1>
+
+<table>
+    <thead>
+    <tr>
+        <th>Показатель</th>
+        <th>Значение</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>Всего книг</td>
+        <td th:text="${totalBooks}"></td>
+    </tr>
+    <tr>
+        <td>Всего пользователей</td>
+        <td th:text="${totalUsers}"></td>
+    </tr>
+    <tr>
+        <td>Активные брони</td>
+        <td th:text="${booked}"></td>
+    </tr>
+    <tr>
+        <td>Активные выдачи</td>
+        <td th:text="${borrowed}"></td>
+    </tr>
+    <tr>
+        <td>Возвраты</td>
+        <td th:text="${returned}"></td>
+    </tr>
+    </tbody>
+</table>
+
+<h3>Отчеты</h3>
+<form th:action="@{/admin/report/generate}" method="post">
+    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+    <button type="submit">Сформировать отчет</button>
+</form>
+
+<div th:if="${reportId}" style="margin-top: 12px;">
+    Отчет формируется. ID: <b th:text="${reportId}"></b>. Перейти к отчету:
+    <a th:href="@{/report/{id}(id=${reportId})}">Открыть</a>
+</div>
+</body>
+</html>

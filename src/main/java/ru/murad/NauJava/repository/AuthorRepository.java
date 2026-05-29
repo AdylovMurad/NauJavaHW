@@ -4,6 +4,9 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import ru.murad.NauJava.entity.Author;
 
+import java.util.Optional;
+
 @RepositoryRestResource(collectionResourceRel = "authors", path = "authors")
 public interface AuthorRepository extends CrudRepository<Author, Long> {
+	Optional<Author> findByFullName(String fullName);
 }

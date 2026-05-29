@@ -30,6 +30,7 @@ public class SpringSecurityConfig {
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").hasAuthority(ru.murad.NauJava.entity.UserRole.ROLE_ADMIN.name())
                         .requestMatchers("/delete/**").hasAuthority(ru.murad.NauJava.entity.UserRole.ROLE_ADMIN.name())
                         .requestMatchers("/report/**").hasAuthority(ru.murad.NauJava.entity.UserRole.ROLE_ADMIN.name())
+                    .requestMatchers("/admin/**").hasAuthority(UserRole.ROLE_ADMIN.name())
                         .requestMatchers("/api/loans/admin/**").hasAuthority(UserRole.ROLE_ADMIN.name())
                         .requestMatchers("/api/books/admin").hasAuthority(UserRole.ROLE_ADMIN.name())
 

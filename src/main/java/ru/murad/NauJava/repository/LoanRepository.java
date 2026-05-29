@@ -15,6 +15,8 @@ public interface LoanRepository extends CrudRepository<Loan, Long> {
 
     List<Loan> findByUserAndStatusIn(User user, List<LoanStatus> statuses);
 
+    List<Loan> findByStatus(LoanStatus status);
+
     Optional<Loan> findByBookIdAndUserIdAndStatus(Long bookId, Long userId, LoanStatus status);
 
     long countByStatus(LoanStatus status);

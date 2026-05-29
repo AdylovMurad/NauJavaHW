@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Админ: Книги</title>
+    <style>
+        table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+        th, td { padding: 8px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #f4f4f4; }
+        form { margin: 0; }
+        .nav a { margin-right: 10px; }
+        .form-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    </style>
+</head>
+<body>
+<div class="nav">
+    <a th:href="@{/admin/books}">Книги</a>
+    <a th:href="@{/admin/authors}">Авторы</a>
+    <a th:href="@{/admin/genres}">Жанры</a>
+    <a th:href="@{/admin/users}">Пользователи</a>
+    <a th:href="@{/admin/loans}">Выдачи</a>
+    <a th:href="@{/admin/stats}">Статистика</a>
+</div>
+
+<h1>Книги</h1>
+
+<h3>Добавить книгу</h3>
+<form th:action="@{/admin/books}" method="post">
+    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+    <div class="form-grid">
+        <input type="text" name="title" placeholder="Название" required />
+        <input type="text" name="isbn" placeholder="ISBN" />
+        <input type="text" name="language" placeholder="Язык" />
+        <input type="number" name="publicationYear" placeholder="Год издания" />
+        <input type="number" name="availableCount" placeholder="Доступно" value="1" min="0" />
+        <select name="authorId">
+            <option value="">Автор (не выбран)</option>
+            <option th:each="author : ${authors}" th:value="${author.id}" th:text="${author.fullName}"></option>
+        </select>
+        <select name="genreId">
+            <option value="">Жанр (не выбран)</option>
+            <option th:each="genre : ${genres}" th:value="${genre.id}" th:text="${genre.name}"></option>
+        </select>
+        <input type="text" name="description" placeholder="Описание" />
+    </div>
+    <button type="submit" style="margin-top: 8px;">Добавить</button>
+</form>
+
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Название</th>
+        <th>ISBN</th>
+        <th>Описание</th>
+        <th>Язык</th>
+        <th>Год</th>
+        <th>Автор</th>
+        <th>Жанр</th>
+        <th>Доступно</th>
+        <th>Действия</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:if="${#lists.isEmpty(books)}">
+        <td colspan="10">Книг пока нет</td>
+    </tr>
+    <tr th:each="book : ${books}">
+        <td>
+            <span th:text="${book.id}"></span>
+            <form th:id="${'update-' + book.id}" th:action="@{/admin/books/{id}/update(id=${book.id})}" method="post" style="display: none;"></form>
+            <form th:id="${'delete-' + book.id}" th:action="@{/admin/books/{id}/delete(id=${book.id})}" method="post" style="display: none;"></form>
+        </td>
+        <td>
+            <input type="hidden" th:if="${_csrf != null}" th:form="${'update-' + book.id}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <input type="text" name="title" th:value="${book.title}" required th:form="${'update-' + book.id}" />
+        </td>
+        <td><input type="text" name="isbn" th:value="${book.isbn}" th:form="${'update-' + book.id}" /></td>
+        <td><input type="text" name="description" th:value="${book.description}" th:form="${'update-' + book.id}" /></td>
+        <td><input type="text" name="language" th:value="${book.language}" th:form="${'update-' + book.id}" /></td>
+        <td><input type="number" name="publicationYear" th:value="${book.publicationYear}" th:form="${'update-' + book.id}" /></td>
+        <td>
+            <select name="authorId" th:form="${'update-' + book.id}">
+                <option value="">Не выбран</option>
+                <option th:each="author : ${authors}" th:value="${author.id}" th:text="${author.fullName}" th:selected="${book.author != null and book.author.id == author.id}"></option>
+            </select>
+        </td>
+        <td>
+            <select name="genreId" th:form="${'update-' + book.id}">
+                <option value="">Не выбран</option>
+                <option th:each="genre : ${genres}" th:value="${genre.id}" th:text="${genre.name}" th:selected="${book.genre != null and book.genre.id == genre.id}"></option>
+            </select>
+        </td>
+        <td><input type="number" name="availableCount" min="0" th:value="${book.availableCount}" th:form="${'update-' + book.id}" /></td>
+        <td>
+            <button type="submit" th:form="${'update-' + book.id}">Сохранить</button>
+            <input type="hidden" th:if="${_csrf != null}" th:form="${'delete-' + book.id}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <button type="submit" th:form="${'delete-' + book.id}">Удалить</button>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

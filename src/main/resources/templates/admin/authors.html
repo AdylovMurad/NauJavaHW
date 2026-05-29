@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Админ: Авторы</title>
+    <style>
+        table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+        th, td { padding: 8px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #f4f4f4; }
+        .nav a { margin-right: 10px; }
+        .form-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+    </style>
+</head>
+<body>
+<div class="nav">
+    <a th:href="@{/admin/books}">Книги</a>
+    <a th:href="@{/admin/authors}">Авторы</a>
+    <a th:href="@{/admin/genres}">Жанры</a>
+    <a th:href="@{/admin/users}">Пользователи</a>
+    <a th:href="@{/admin/loans}">Выдачи</a>
+    <a th:href="@{/admin/stats}">Статистика</a>
+</div>
+
+<h1>Авторы</h1>
+
+<h3>Добавить автора</h3>
+<form th:action="@{/admin/authors}" method="post">
+    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+    <div class="form-grid">
+        <input type="text" name="fullName" placeholder="ФИО" required />
+        <input type="text" name="biography" placeholder="Биография" />
+        <input type="date" name="birthDate" placeholder="Дата рождения" />
+        <input type="date" name="dateOfDeath" placeholder="Дата смерти" />
+    </div>
+    <button type="submit" style="margin-top: 8px;">Добавить</button>
+</form>
+
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>ФИО</th>
+        <th>Биография</th>
+        <th>Дата рождения</th>
+        <th>Дата смерти</th>
+        <th>Действия</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:if="${#lists.isEmpty(authors)}">
+        <td colspan="6">Авторов пока нет</td>
+    </tr>
+    <tr th:each="author : ${authors}">
+        <td th:text="${author.id}"></td>
+        <td th:text="${author.fullName}"></td>
+        <td th:text="${author.biography}"></td>
+        <td th:text="${author.birthDate}"></td>
+        <td th:text="${author.dateOfDeath}"></td>
+        <td>
+            <form th:action="@{/admin/authors/{id}/delete(id=${author.id})}" method="post">
+                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <button type="submit">Удалить</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
