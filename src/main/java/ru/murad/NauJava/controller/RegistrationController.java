@@ -26,13 +26,13 @@ public class RegistrationController {
     public String addUser(User user, Model model) {
         try {
             if (user.getRole() == null) {
-                user.setRole(UserRole.USER);
+                user.setRole(UserRole.ROLE_USER);
             }
 
             userService.saveUser(user);
             return "redirect:/login";
         } catch (Exception ex) {
-            model.addAttribute("message", "Ошибка: Пользователь с таким логином уже существует");
+            model.addAttribute("message", "Ошибка: Пользователь с таким логином или email уже существует");
             return "registration";
         }
     }

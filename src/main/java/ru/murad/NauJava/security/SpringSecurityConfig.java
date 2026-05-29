@@ -24,17 +24,20 @@ public class SpringSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+                .csrf(org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((authz) -> authz
                         .requestMatchers("/registration", "/login", "/logout", "/error").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").hasRole(UserRole.ADMIN.name())
-                        .requestMatchers("/delete/**").hasRole(UserRole.ADMIN.name())
-                        .requestMatchers("/report/**").hasRole(UserRole.ADMIN.name())
+                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").hasAuthority(ru.murad.NauJava.entity.UserRole.ROLE_ADMIN.name())
+                        .requestMatchers("/delete/**").hasAuthority(ru.murad.NauJava.entity.UserRole.ROLE_ADMIN.name())
+                        .requestMatchers("/report/**").hasAuthority(ru.murad.NauJava.entity.UserRole.ROLE_ADMIN.name())
+                        .requestMatchers("/api/loans/admin/**").hasAuthority(UserRole.ROLE_ADMIN.name())
+                        .requestMatchers("/api/books/admin").hasAuthority(UserRole.ROLE_ADMIN.name())
 
                         .anyRequest().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults())
                 .formLogin(Customizer.withDefaults())
-                .logout((logout) -> logout.permitAll());
+                .logout(org.springframework.security.config.annotation.web.configurers.LogoutConfigurer::permitAll);
 
         return http.build();
     }

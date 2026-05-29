@@ -26,6 +26,7 @@ public class BookServiceImpl implements BookService {
     public void createBook(Long id, String title, String authorName) {
         Book book = new Book();
         book.setTitle(title);
+        book.setAvailableCount(5);
 
         Author author = new Author();
         author.setFullName(authorName);

@@ -16,15 +16,20 @@ public class Loan {
     @Column(name = "return_deadline")
     private LocalDateTime returnDeadline;
 
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private LoanStatus status;
 
     @ManyToOne
-    @JoinColumn(name = "book_id")
+    @JoinColumn(name = "book_id", nullable = false)
     private Book book;
 
     @ManyToOne
-    @JoinColumn(name = "reader_id")
-    private Reader reader;
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
+
+    public Loan() {
+    }
 
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -32,10 +37,13 @@ public class Loan {
     public void setLoanDate(LocalDateTime loanDate) { this.loanDate = loanDate; }
     public LocalDateTime getReturnDeadline() { return returnDeadline; }
     public void setReturnDeadline(LocalDateTime returnDeadline) { this.returnDeadline = returnDeadline; }
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+
+    public LoanStatus getStatus() { return status; }
+    public void setStatus(LoanStatus status) { this.status = status; }
+
     public Book getBook() { return book; }
     public void setBook(Book book) { this.book = book; }
-    public Reader getReader() { return reader; }
-    public void setReader(Reader reader) { this.reader = reader; }
+
+    public User getUser() { return user; }
+    public void setUser(User user) { this.user = user; }
 }

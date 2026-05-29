@@ -23,6 +23,9 @@ public class Book {
     @Column(name = "publication_year")
     private Integer publicationYear;
 
+    @Column(name = "available_count", nullable = false)
+    private int availableCount;
+
     @ManyToOne
     @JoinColumn(name = "author_id")
     private Author author;
@@ -31,20 +34,41 @@ public class Book {
     @JoinColumn(name = "genre_id")
     private Genre genre;
 
+    public Book() {}
+
     public Long getId() { return id; }
+
     public void setId(Long id) { this.id = id; }
+
     public String getTitle() { return title; }
+
     public void setTitle(String title) { this.title = title; }
+
     public String getIsbn() { return isbn; }
+
     public void setIsbn(String isbn) { this.isbn = isbn; }
+
     public String getLanguage() { return language; }
+
     public void setLanguage(String language) { this.language = language; }
+
     public String getDescription() { return description; }
+
     public void setDescription(String description) { this.description = description; }
+
     public Integer getPublicationYear() { return publicationYear; }
+
     public void setPublicationYear(Integer publicationYear) { this.publicationYear = publicationYear; }
+
+    public int getAvailableCount() { return availableCount; }
+
+    public void setAvailableCount(int availableCount) { this.availableCount = availableCount; }
+
     public Author getAuthor() { return author; }
+
     public void setAuthor(Author author) { this.author = author; }
+
     public Genre getGenre() { return genre; }
+
     public void setGenre(Genre genre) { this.genre = genre; }
 }
