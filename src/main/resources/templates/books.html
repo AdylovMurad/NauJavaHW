@@ -11,6 +11,35 @@
 </head>
 <body>
 <h1>Список книг в библиотеке</h1>
+
+<div style="margin-bottom: 16px;">
+    <a th:href="@{/ui/profile}">Личный кабинет</a>
+</div>
+
+<div th:if="${message}" style="color: green;">
+    <p th:text="${message}"></p>
+</div>
+<div th:if="${error}" style="color: red;">
+    <p th:text="${error}"></p>
+</div>
+
+<form th:action="@{/ui/books}" method="get" style="margin-bottom: 16px;">
+    <label>
+        Название:
+        <input type="text" name="title" th:value="${title}" />
+    </label>
+    <label style="margin-left: 8px;">
+        Автор:
+        <input type="text" name="author" th:value="${author}" />
+    </label>
+    <label style="margin-left: 8px;">
+        Жанр:
+        <input type="text" name="genre" th:value="${genre}" />
+    </label>
+    <button type="submit" style="margin-left: 8px;">Фильтровать</button>
+    <a th:href="@{/ui/books}" style="margin-left: 8px;">Сбросить</a>
+</form>
+
 <table>
     <thead>
     <tr>
@@ -21,6 +50,9 @@
         <th>Язык</th>
         <th>Год издания</th>
         <th>Автор</th>
+        <th>Жанр</th>
+        <th>Доступно</th>
+        <th>Действие</th>
     </tr>
     </thead>
     <tbody>
@@ -38,6 +70,17 @@
         <td th:text="${book.publicationYear}"></td>
 
         <td th:text="${book.author != null ? book.author.fullName : 'Не указан'}"></td>
+
+        <td th:text="${book.genre != null ? book.genre.name : 'Не указан'}"></td>
+
+        <td th:text="${book.availableCount}"></td>
+
+        <td>
+            <form th:action="@{/ui/books/{id}/book(id=${book.id})}" method="post">
+                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <button type="submit" th:disabled="${book.availableCount <= 0}">Забронировать</button>
+            </form>
+        </td>
     </tr>
     </tbody>
 </table>

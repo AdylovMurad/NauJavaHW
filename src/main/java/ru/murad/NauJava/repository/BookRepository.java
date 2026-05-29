@@ -14,4 +14,14 @@ public interface BookRepository extends CrudRepository<Book, Long>, BookReposito
 
     @Query("SELECT b FROM Book b WHERE b.author.fullName = :name")
     List<Book> findByAuthorFullName(@Param("name") String name);
+
+        @Query("""
+                        SELECT b FROM Book b
+                        WHERE (:title IS NULL OR LOWER(b.title) LIKE LOWER(CONCAT('%', :title, '%')))
+                            AND (:author IS NULL OR LOWER(b.author.fullName) LIKE LOWER(CONCAT('%', :author, '%')))
+                            AND (:genre IS NULL OR LOWER(b.genre.name) LIKE LOWER(CONCAT('%', :genre, '%')))
+                        """)
+        List<Book> searchBooks(@Param("title") String title,
+                                                     @Param("author") String author,
+                                                     @Param("genre") String genre);
 }

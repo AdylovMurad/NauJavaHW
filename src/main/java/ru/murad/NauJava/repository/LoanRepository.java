@@ -13,6 +13,8 @@ import java.util.Optional;
 public interface LoanRepository extends CrudRepository<Loan, Long> {
     List<Loan> findByUser(User user);
 
+    List<Loan> findByUserAndStatusIn(User user, List<LoanStatus> statuses);
+
     Optional<Loan> findByBookIdAndUserIdAndStatus(Long bookId, Long userId, LoanStatus status);
 
     long countByStatus(LoanStatus status);

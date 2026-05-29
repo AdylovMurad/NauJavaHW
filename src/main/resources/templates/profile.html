@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Личный кабинет</title>
+    <style>
+        table { width: 70%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #f4f4f4; }
+    </style>
+</head>
+<body>
+<h1>Личный кабинет</h1>
+<p>Пользователь: <b th:text="${username}"></b></p>
+
+<div style="margin-bottom: 16px;">
+    <a th:href="@{/ui/books}">Вернуться к каталогу</a>
+</div>
+
+<h2>Текущие брони и выдачи</h2>
+<table>
+    <thead>
+    <tr>
+        <th>Книга</th>
+        <th>Статус</th>
+        <th>Дата брони/выдачи</th>
+        <th>Срок возврата</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:if="${#lists.isEmpty(loans)}">
+        <td colspan="4">Пока нет активных броней или выдач</td>
+    </tr>
+    <tr th:each="loan : ${loans}">
+        <td th:text="${loan.book != null ? loan.book.title : 'Не указано'}"></td>
+        <td th:text="${loan.status}"></td>
+        <td th:text="${loan.loanDate}"></td>
+        <td th:text="${loan.returnDeadline}"></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
