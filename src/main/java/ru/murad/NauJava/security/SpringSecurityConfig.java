@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.http.HttpMethod;
 import ru.murad.NauJava.entity.UserRole;
 
 @Configuration
@@ -31,6 +32,13 @@ public class SpringSecurityConfig {
                         .requestMatchers("/delete/**").hasAuthority(ru.murad.NauJava.entity.UserRole.ROLE_ADMIN.name())
                         .requestMatchers("/report/**").hasAuthority(ru.murad.NauJava.entity.UserRole.ROLE_ADMIN.name())
                     .requestMatchers("/admin/**").hasAuthority(UserRole.ROLE_ADMIN.name())
+                    .requestMatchers("/api/users/**").hasAuthority(UserRole.ROLE_ADMIN.name())
+                    .requestMatchers(HttpMethod.POST, "/api/books/**", "/api/authors/**", "/api/genres/**")
+                    .hasAuthority(UserRole.ROLE_ADMIN.name())
+                    .requestMatchers(HttpMethod.PUT, "/api/books/**", "/api/authors/**", "/api/genres/**")
+                    .hasAuthority(UserRole.ROLE_ADMIN.name())
+                    .requestMatchers(HttpMethod.DELETE, "/api/books/**", "/api/authors/**", "/api/genres/**")
+                    .hasAuthority(UserRole.ROLE_ADMIN.name())
                         .requestMatchers("/api/loans/admin/**").hasAuthority(UserRole.ROLE_ADMIN.name())
                         .requestMatchers("/api/books/admin").hasAuthority(UserRole.ROLE_ADMIN.name())
 

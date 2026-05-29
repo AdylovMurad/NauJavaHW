@@ -115,4 +115,23 @@ public class LoanRestController {
 
         return ResponseEntity.ok(stats);
     }
+
+    @GetMapping("/admin")
+    public ResponseEntity<List<Loan>> getAllLoans() {
+        List<Loan> loans = new java.util.ArrayList<>();
+        loanRepository.findAll().forEach(loans::add);
+        return ResponseEntity.ok(loans);
+    }
+
+    @GetMapping("/admin/{id}")
+    public ResponseEntity<Loan> getLoanById(@PathVariable Long id) {
+        Loan loan = loanRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Выдача не найдена"));
+        return ResponseEntity.ok(loan);
+    }
+
+    @GetMapping("/admin/overdue")
+    public ResponseEntity<List<Loan>> getOverdueLoans() {
+        return ResponseEntity.ok(loanRepository.findByStatus(LoanStatus.OVERDUE));
+    }
 }

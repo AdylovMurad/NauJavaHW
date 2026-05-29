@@ -1,6 +1,5 @@
 package ru.murad.NauJava.repository;
 
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 import ru.murad.NauJava.entity.Loan;
 import ru.murad.NauJava.entity.LoanStatus;
@@ -11,7 +10,7 @@ import java.util.Optional;
 import java.time.LocalDateTime;
 
 @Repository
-public interface LoanRepository extends CrudRepository<Loan, Long> {
+public interface LoanRepository extends org.springframework.data.repository.CrudRepository<Loan, Long> {
     List<Loan> findByUser(User user);
 
     List<Loan> findByUserAndStatusIn(User user, List<LoanStatus> statuses);
