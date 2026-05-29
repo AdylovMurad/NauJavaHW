@@ -22,6 +22,7 @@ import ru.murad.NauJava.repository.LoanRepository;
 import ru.murad.NauJava.repository.ReportRepository;
 import ru.murad.NauJava.repository.UserRepository;
 import ru.murad.NauJava.service.AuthorService;
+import ru.murad.NauJava.service.LoanStatusService;
 import ru.murad.NauJava.service.ReportService;
 
 import java.time.LocalDate;
@@ -40,6 +41,7 @@ public class AdminController {
     private final AuthorService authorService;
     private final ReportService reportService;
     private final ReportRepository reportRepository;
+    private final LoanStatusService loanStatusService;
 
     public AdminController(BookRepository bookRepository,
                            AuthorRepository authorRepository,
@@ -48,7 +50,8 @@ public class AdminController {
                            LoanRepository loanRepository,
                            AuthorService authorService,
                            ReportService reportService,
-                           ReportRepository reportRepository) {
+                           ReportRepository reportRepository,
+                           LoanStatusService loanStatusService) {
         this.bookRepository = bookRepository;
         this.authorRepository = authorRepository;
         this.genreRepository = genreRepository;
@@ -57,6 +60,7 @@ public class AdminController {
         this.authorService = authorService;
         this.reportService = reportService;
         this.reportRepository = reportRepository;
+        this.loanStatusService = loanStatusService;
     }
 
     @GetMapping
@@ -203,10 +207,13 @@ public class AdminController {
 
     @GetMapping("/loans")
     public String loansPage(Model model) {
+        loanStatusService.refreshOverdue();
         List<Loan> booked = loanRepository.findByStatus(LoanStatus.BOOKED);
         List<Loan> borrowed = loanRepository.findByStatus(LoanStatus.BORROWED);
+        List<Loan> overdue = loanRepository.findByStatus(LoanStatus.OVERDUE);
         model.addAttribute("booked", booked);
         model.addAttribute("borrowed", borrowed);
+        model.addAttribute("overdue", overdue);
         return "admin/loans";
     }
 
@@ -229,7 +236,7 @@ public class AdminController {
         Loan loan = loanRepository.findById(loanId)
                 .orElseThrow(() -> new RuntimeException("Выдача не найдена"));
 
-        if (loan.getStatus() == LoanStatus.BORROWED) {
+        if (loan.getStatus() == LoanStatus.BORROWED || loan.getStatus() == LoanStatus.OVERDUE) {
             loan.setStatus(LoanStatus.RETURNED);
             loanRepository.save(loan);
 
@@ -262,16 +269,19 @@ public class AdminController {
     }
 
     private void addStats(Model model) {
+        loanStatusService.refreshOverdue();
         long totalBooks = bookRepository.count();
         long totalUsers = userRepository.count();
         long booked = loanRepository.countByStatus(LoanStatus.BOOKED);
         long borrowed = loanRepository.countByStatus(LoanStatus.BORROWED);
+        long overdue = loanRepository.countByStatus(LoanStatus.OVERDUE);
         long returned = loanRepository.countByStatus(LoanStatus.RETURNED);
 
         model.addAttribute("totalBooks", totalBooks);
         model.addAttribute("totalUsers", totalUsers);
         model.addAttribute("booked", booked);
         model.addAttribute("borrowed", borrowed);
+        model.addAttribute("overdue", overdue);
         model.addAttribute("returned", returned);
     }
 }

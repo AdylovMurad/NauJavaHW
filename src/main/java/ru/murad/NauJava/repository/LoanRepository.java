@@ -8,6 +8,7 @@ import ru.murad.NauJava.entity.User;
 
 import java.util.List;
 import java.util.Optional;
+import java.time.LocalDateTime;
 
 @Repository
 public interface LoanRepository extends CrudRepository<Loan, Long> {
@@ -16,6 +17,8 @@ public interface LoanRepository extends CrudRepository<Loan, Long> {
     List<Loan> findByUserAndStatusIn(User user, List<LoanStatus> statuses);
 
     List<Loan> findByStatus(LoanStatus status);
+
+    List<Loan> findByStatusAndReturnDeadlineBefore(LoanStatus status, LocalDateTime deadline);
 
     Optional<Loan> findByBookIdAndUserIdAndStatus(Long bookId, Long userId, LoanStatus status);
 

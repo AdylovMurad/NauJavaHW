@@ -91,7 +91,8 @@ public class LoanRestController {
     @PostMapping("/admin/return")
     public ResponseEntity<String> returnBook(@RequestParam Long bookId, @RequestParam Long userId) {
         Loan loan = loanRepository.findByBookIdAndUserIdAndStatus(bookId, userId, LoanStatus.BORROWED)
-                .orElseThrow(() -> new RuntimeException("Запись о выдаче этой книги данному пользователю не найдена"));
+            .or(() -> loanRepository.findByBookIdAndUserIdAndStatus(bookId, userId, LoanStatus.OVERDUE))
+            .orElseThrow(() -> new RuntimeException("Запись о выдаче этой книги данному пользователю не найдена"));
 
         loan.setStatus(LoanStatus.RETURNED);
         loanRepository.save(loan);
@@ -109,6 +110,7 @@ public class LoanRestController {
         stats.clear();
         stats.put("total_booked", loanRepository.countByStatus(LoanStatus.BOOKED));
         stats.put("total_borrowed", loanRepository.countByStatus(LoanStatus.BORROWED));
+        stats.put("total_overdue", loanRepository.countByStatus(LoanStatus.OVERDUE));
         stats.put("total_returned", loanRepository.countByStatus(LoanStatus.RETURNED));
 
         return ResponseEntity.ok(stats);

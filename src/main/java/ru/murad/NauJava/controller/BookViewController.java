@@ -72,7 +72,7 @@ public class BookViewController {
         boolean alreadyHasBook = loanRepository.existsByBookIdAndUserIdAndStatusIn(
                 id,
                 user.getId(),
-                List.of(LoanStatus.BOOKED, LoanStatus.BORROWED)
+            List.of(LoanStatus.BOOKED, LoanStatus.BORROWED, LoanStatus.OVERDUE)
         );
 
         if (alreadyHasBook) {
@@ -106,7 +106,7 @@ public class BookViewController {
 
         List<Loan> loans = loanRepository.findByUserAndStatusIn(
                 user,
-                List.of(LoanStatus.BOOKED, LoanStatus.BORROWED)
+            List.of(LoanStatus.BOOKED, LoanStatus.BORROWED, LoanStatus.OVERDUE)
         );
 
         model.addAttribute("loans", loans);
