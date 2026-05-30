@@ -3,7 +3,6 @@ package ru.murad.NauJava;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import ru.murad.NauJava.entity.Author;
 import ru.murad.NauJava.entity.Book;
 import ru.murad.NauJava.repository.AuthorRepository;
@@ -12,8 +11,7 @@ import ru.murad.NauJava.service.AuthorService;
 
 import java.util.UUID;
 
-@SpringBootTest
-class AuthorTransactionTest {
+class AuthorTransactionTest extends BaseIntegrationTest {
 
     @Autowired
     private AuthorService authorService;

@@ -3,7 +3,6 @@ package ru.murad.NauJava;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import ru.murad.NauJava.entity.Author;
 import ru.murad.NauJava.entity.Book;
 import ru.murad.NauJava.repository.AuthorRepository;
@@ -12,8 +11,7 @@ import ru.murad.NauJava.repository.BookRepository;
 import java.util.List;
 import java.util.UUID;
 
-@SpringBootTest
-class BookRepositoryTest {
+class BookRepositoryTest extends BaseIntegrationTest {
 
     @Autowired
     private BookRepository bookRepository;

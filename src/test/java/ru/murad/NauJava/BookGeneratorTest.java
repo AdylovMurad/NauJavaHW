@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public abstract class BookGeneratorTest {
+public abstract class BookGeneratorTest extends BaseIntegrationTest {
     protected List<Book> books;
     protected List<Author> authors;
 
