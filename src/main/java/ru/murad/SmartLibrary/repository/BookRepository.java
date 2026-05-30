@@ -14,13 +14,15 @@ public interface BookRepository extends org.springframework.data.repository.Crud
     @Query("SELECT b FROM Book b WHERE b.author.fullName = :name")
     List<Book> findByAuthorFullName(@Param("name") String name);
 
-        @Query("""
-                        SELECT b FROM Book b
-                        WHERE (:title IS NULL OR LOWER(b.title) LIKE LOWER(CONCAT('%', :title, '%')))
-                            AND (:author IS NULL OR LOWER(b.author.fullName) LIKE LOWER(CONCAT('%', :author, '%')))
-                            AND (:genre IS NULL OR LOWER(b.genre.name) LIKE LOWER(CONCAT('%', :genre, '%')))
-                        """)
-        List<Book> searchBooks(@Param("title") String title,
-                                                     @Param("author") String author,
-                                                     @Param("genre") String genre);
+    @Query("""
+            SELECT b FROM Book b
+            LEFT JOIN b.author a
+            LEFT JOIN b.genre g
+            WHERE (CAST(:title AS string) IS NULL OR LOWER(b.title) LIKE LOWER(CONCAT('%', CAST(:title AS string), '%')))
+              AND (CAST(:author AS string) IS NULL OR LOWER(a.fullName) LIKE LOWER(CONCAT('%', CAST(:author AS string), '%')))
+              AND (CAST(:genre AS string) IS NULL OR LOWER(g.name) LIKE LOWER(CONCAT('%', CAST(:genre AS string), '%')))
+            """)
+    List<Book> searchBooks(@Param("title") String title,
+                           @Param("author") String author,
+                           @Param("genre") String genre);
 }
