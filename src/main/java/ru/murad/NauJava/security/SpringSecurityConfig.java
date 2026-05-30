@@ -10,6 +10,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 import ru.murad.NauJava.entity.UserRole;
 
 @Configuration
@@ -25,7 +26,9 @@ public class SpringSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer::disable)
+            .csrf(csrf -> csrf
+                .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+            )
                 .authorizeHttpRequests((authz) -> authz
                         .requestMatchers("/registration", "/login", "/logout", "/error").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").hasAuthority(ru.murad.NauJava.entity.UserRole.ROLE_ADMIN.name())
