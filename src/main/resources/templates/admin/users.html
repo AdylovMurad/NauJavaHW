@@ -1,51 +1,499 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Админ: Пользователи</title>
-    <style>
-        table { width: 100%; border-collapse: collapse; margin-top: 16px; }
-        th, td { padding: 8px; border: 1px solid #ddd; text-align: left; }
-        th { background-color: #f4f4f4; }
-        .nav a { margin-right: 10px; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ: Пользователи | Библиотека</title>
+
+    <!-- Bootstrap 5 CSS + Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
-<body>
-<div class="nav">
-    <a th:href="@{/admin/books}">Книги</a>
-    <a th:href="@{/admin/authors}">Авторы</a>
-    <a th:href="@{/admin/genres}">Жанры</a>
-    <a th:href="@{/admin/users}">Пользователи</a>
-    <a th:href="@{/admin/loans}">Выдачи</a>
-    <a th:href="@{/admin/stats}">Статистика</a>
+<body class="bg-light">
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Боковая навигация -->
+        <nav class="col-md-2 d-md-block bg-dark vh-100 p-0">
+            <div class="position-sticky">
+                <div class="text-white text-center py-4 border-bottom border-secondary">
+                    <i class="bi bi-shield-lock-fill fs-1"></i>
+                    <h5 class="mt-2">Админ-панель</h5>
+                </div>
+                <ul class="nav flex-column mt-3">
+                    <li class="nav-item">
+                        <a th:href="@{/admin/books}" class="nav-link text-white">
+                            <i class="bi bi-book"></i> Книги
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a th:href="@{/admin/authors}" class="nav-link text-white">
+                            <i class="bi bi-pen"></i> Авторы
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a th:href="@{/admin/genres}" class="nav-link text-white">
+                            <i class="bi bi-tags"></i> Жанры
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a th:href="@{/admin/users}" class="nav-link active bg-primary text-white">
+                            <i class="bi bi-people"></i> Пользователи
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a th:href="@{/admin/loans}" class="nav-link text-white">
+                            <i class="bi bi-journal-bookmark-fill"></i> Выдачи
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a th:href="@{/admin/stats}" class="nav-link text-white">
+                            <i class="bi bi-graph-up"></i> Статистика
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Основной контент -->
+        <main class="col-md-10 ms-sm-auto px-md-4 py-4">
+            <!-- Заголовок -->
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                <h1 class="h2">
+                    <i class="bi bi-people-fill"></i> Управление пользователями
+                </h1>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal">
+                    <i class="bi bi-person-plus"></i> Добавить пользователя
+                </button>
+            </div>
+
+            <!-- Статистика -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card bg-primary text-white shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-title">Всего пользователей</h6>
+                                    <h2 class="mb-0" th:text="${#lists.size(users)}">0</h2>
+                                </div>
+                                <i class="bi bi-people fs-1 opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-warning text-dark shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-title">Администраторы</h6>
+                                    <h2 class="mb-0" th:text="${#lists.size(users.?[role == 'ROLE_ADMIN'])}">0</h2>
+                                </div>
+                                <i class="bi bi-shield-lock fs-1 opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-success text-white shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-title">Обычные пользователи</h6>
+                                    <h2 class="mb-0" th:text="${#lists.size(users.?[role == 'ROLE_USER'])}">0</h2>
+                                </div>
+                                <i class="bi bi-person fs-1 opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Поиск и фильтрация -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-5">
+                            <label class="form-label">Поиск</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-search"></i></span>
+                                <input type="text" class="form-control" id="searchInput" placeholder="Логин, email или имя...">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Фильтр по роли</label>
+                            <select class="form-select" id="roleFilter">
+                                <option value="all">Все пользователи</option>
+                                <option value="ADMIN">Администраторы</option>
+                                <option value="USER">Обычные пользователи</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">&nbsp;</label>
+                            <div>
+                                <button class="btn btn-outline-secondary" onclick="resetFilters()">
+                                    <i class="bi bi-arrow-repeat"></i> Сбросить фильтры
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Таблица пользователей -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-list-ul"></i> Список пользователей
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0" id="userTable">
+                            <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Логин</th>
+                                <th>Email</th>
+                                <th>Имя</th>
+                                <th>Фамилия</th>
+                                <th>Роль</th>
+                                <th>Действия</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:if="${#lists.isEmpty(users)}">
+                                <td colspan="7" class="text-center text-muted py-5">
+                                    <i class="bi bi-emoji-frown" style="font-size: 2rem;"></i>
+                                    <div class="mt-2">Пользователей пока нет</div>
+                                    <small class="text-muted">Добавьте первого пользователя через кнопку выше</small>
+                                </td>
+                            </tr>
+                            <tr th:each="user : ${users}" class="user-row"
+                                th:data-role="${user.role}"
+                                th:data-username="${user.username}"
+                                th:data-email="${user.email}"
+                                th:data-firstname="${user.firstName}"
+                                th:data-lastname="${user.lastName}">
+                                <td>
+                                    <span class="fw-bold" th:text="${user.id}"></span>
+                                </td>
+                                <td>
+                                    <i class="bi bi-person-circle"></i>
+                                    <span th:text="${user.username}"></span>
+                                </td>
+                                <td>
+                                    <i class="bi bi-envelope"></i>
+                                    <a th:href="'mailto:' + ${user.email}" th:text="${user.email}"></a>
+                                </td>
+                                <td th:text="${user.firstName != null ? user.firstName : '—'}"></td>
+                                <td th:text="${user.lastName != null ? user.lastName : '—'}"></td>
+                                <td>
+                                    <span th:switch="${user.role}" class="badge"
+                                          th:classappend="${user.role == 'ADMIN' ? 'bg-danger' : 'bg-primary'}">
+                                        <i th:switch="${user.role}" class="bi"
+                                           th:case="'ADMIN'" th:class="'bi-shield-lock'"></i>
+                                        <i th:case="'USER'" th:class="'bi-person'"></i>
+                                        <span th:text="${user.role}"></span>
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <button type="button" class="btn btn-outline-primary"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#editUserModal"
+                                                th:data-user-id="${user.id}"
+                                                th:data-username="${user.username}"
+                                                th:data-email="${user.email}"
+                                                th:data-firstname="${user.firstName}"
+                                                th:data-lastname="${user.lastName}"
+                                                th:data-role="${user.role}">
+                                            <i class="bi bi-pencil"></i> Редактировать
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#deleteUserModal"
+                                                th:data-user-id="${user.id}"
+                                                th:data-username="${user.username}">
+                                            <i class="bi bi-trash"></i> Удалить
+                                        </button>
+                                        <a th:href="@{/admin/users/{id}/loans(id=${user.id})}"
+                                           class="btn btn-outline-info"
+                                           title="История выдач">
+                                            <i class="bi bi-journal-bookmark"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                        </table>
+                        </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
 </div>
 
-<h1>Пользователи</h1>
+<!-- Модальное окно для добавления пользователя -->
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="addUserModalLabel">
+                    <i class="bi bi-person-plus"></i> Добавить пользователя
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form th:action="@{/admin/users}" method="post">
+                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Логин <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="username" required autofocus>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Пароль <span class="text-danger">*</span></label>
+                        <input type="password" class="form-control" name="password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email <span class="text-danger">*</span></label>
+                        <input type="email" class="form-control" name="email" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Имя</label>
+                            <input type="text" class="form-control" name="firstName">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Фамилия</label>
+                            <input type="text" class="form-control" name="lastName">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Роль</label>
+                        <select class="form-select" name="role">
+                            <option value="USER">Пользователь</option>
+                            <option value="ADMIN">Администратор</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Добавить
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
-<table>
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Логин</th>
-        <th>Email</th>
-        <th>Имя</th>
-        <th>Фамилия</th>
-        <th>Роль</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:if="${#lists.isEmpty(users)}">
-        <td colspan="6">Пользователей пока нет</td>
-    </tr>
-    <tr th:each="user : ${users}">
-        <td th:text="${user.id}"></td>
-        <td th:text="${user.username}"></td>
-        <td th:text="${user.email}"></td>
-        <td th:text="${user.firstName}"></td>
-        <td th:text="${user.lastName}"></td>
-        <td th:text="${user.role}"></td>
-    </tr>
-    </tbody>
-</table>
+<!-- Модальное окно для редактирования пользователя -->
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-warning text-dark">
+                <h5 class="modal-title" id="editUserModalLabel">
+                    <i class="bi bi-pencil-square"></i> Редактировать пользователя
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" id="editUserForm">
+                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Логин</label>
+                        <input type="text" class="form-control" id="edit_username" disabled>
+                        <small class="text-muted">Логин нельзя изменить</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Новый пароль</label>
+                        <input type="password" class="form-control" name="password" placeholder="Оставьте пустым, чтобы не менять">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" class="form-control" name="email" id="edit_email" required>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Имя</label>
+                            <input type="text" class="form-control" name="firstName" id="edit_firstname">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Фамилия</label>
+                            <input type="text" class="form-control" name="lastName" id="edit_lastname">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Роль</label>
+                        <select class="form-select" name="role" id="edit_role">
+                            <option value="USER">Пользователь</option>
+                            <option value="ADMIN">Администратор</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-warning">
+                        <i class="bi bi-save"></i> Сохранить изменения
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для подтверждения удаления -->
+<div class="modal fade" id="deleteUserModal" tabindex="-1" aria-labelledby="deleteUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteUserModalLabel">
+                    <i class="bi bi-exclamation-triangle-fill"></i> Подтверждение удаления
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Вы действительно хотите удалить пользователя:</p>
+                <p class="fw-bold fs-5 text-danger" id="usernameModal"></p>
+                <p class="text-muted small">
+                    <i class="bi bi-info-circle"></i>
+                    Все активные выдачи пользователя будут закрыты, а история сохранена.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <form method="post" id="deleteUserForm">
+                    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Удалить
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Редактирование пользователя
+    const editButtons = document.querySelectorAll('[data-bs-target="#editUserModal"]');
+    const editForm = document.getElementById('editUserForm');
+    const editUsername = document.getElementById('edit_username');
+    const editEmail = document.getElementById('edit_email');
+    const editFirstname = document.getElementById('edit_firstname');
+    const editLastname = document.getElementById('edit_lastname');
+    const editRole = document.getElementById('edit_role');
+
+    editButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const userId = this.getAttribute('data-user-id');
+            const username = this.getAttribute('data-username');
+            const email = this.getAttribute('data-email');
+            const firstname = this.getAttribute('data-firstname');
+            const lastname = this.getAttribute('data-lastname');
+            const role = this.getAttribute('data-role');
+
+            editUsername.value = username;
+            editEmail.value = email;
+            editFirstname.value = firstname !== 'null' ? firstname : '';
+            editLastname.value = lastname !== 'null' ? lastname : '';
+            editRole.value = role;
+
+            editForm.action = '/admin/users/' + userId + '/update';
+        });
+    });
+
+    // Удаление пользователя
+    const deleteButtons = document.querySelectorAll('[data-bs-target="#deleteUserModal"]');
+    const deleteForm = document.getElementById('deleteUserForm');
+    const usernameSpan = document.getElementById('usernameModal');
+
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const userId = this.getAttribute('data-user-id');
+            const username = this.getAttribute('data-username');
+
+            usernameSpan.textContent = username;
+            deleteForm.action = '/admin/users/' + userId + '/delete';
+        });
+    });
+
+    // Поиск и фильтрация
+    function filterUsers() {
+        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+        const roleFilter = document.getElementById('roleFilter').value;
+        const rows = document.querySelectorAll('#userTable tbody tr.user-row');
+
+        rows.forEach(row => {
+            const username = row.getAttribute('data-username')?.toLowerCase() || '';
+            const email = row.getAttribute('data-email')?.toLowerCase() || '';
+            const firstname = row.getAttribute('data-firstname')?.toLowerCase() || '';
+            const lastname = row.getAttribute('data-lastname')?.toLowerCase() || '';
+            const role = row.getAttribute('data-role');
+
+            const matchesSearch = searchTerm === '' ||
+                username.includes(searchTerm) ||
+                email.includes(searchTerm) ||
+                firstname.includes(searchTerm) ||
+                lastname.includes(searchTerm);
+            const matchesRole = roleFilter === 'all' || role === roleFilter;
+
+            row.style.display = matchesSearch && matchesRole ? '' : 'none';
+        });
+    }
+
+    function resetFilters() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('roleFilter').value = 'all';
+        filterUsers();
+    }
+
+    document.getElementById('searchInput').addEventListener('input', filterUsers);
+    document.getElementById('roleFilter').addEventListener('change', filterUsers);
+</script>
+
+<style>
+    /* Дополнительные стили */
+    @media (max-width: 768px) {
+        .vh-100 {
+            height: auto !important;
+            min-height: auto;
+        }
+    }
+
+    /* Анимация для карточек */
+    .card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+
+    /* Стили для таблицы */
+    .table td {
+        vertical-align: middle;
+    }
+
+    /* Анимация для кнопок */
+    .btn-group .btn {
+        transition: all 0.2s;
+    }
+
+    .btn-group .btn:hover {
+        transform: translateY(-1px);
+    }
+
+    /* Стили для бейджей */
+    .badge {
+        font-weight: 500;
+        padding: 0.5rem 0.75rem;
+    }
+</style>
 </body>
 </html>

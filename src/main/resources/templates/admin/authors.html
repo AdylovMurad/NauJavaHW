@@ -1,69 +1,260 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Админ: Авторы</title>
-    <style>
-        table { width: 100%; border-collapse: collapse; margin-top: 16px; }
-        th, td { padding: 8px; border: 1px solid #ddd; text-align: left; }
-        th { background-color: #f4f4f4; }
-        .nav a { margin-right: 10px; }
-        .form-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ: Авторы | Библиотека</title>
+
+    <!-- Bootstrap 5 CSS + Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
-<body>
-<div class="nav">
-    <a th:href="@{/admin/books}">Книги</a>
-    <a th:href="@{/admin/authors}">Авторы</a>
-    <a th:href="@{/admin/genres}">Жанры</a>
-    <a th:href="@{/admin/users}">Пользователи</a>
-    <a th:href="@{/admin/loans}">Выдачи</a>
-    <a th:href="@{/admin/stats}">Статистика</a>
+<body class="bg-light">
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Боковая навигация для админки -->
+        <nav class="col-md-2 d-md-block bg-dark vh-100 p-0">
+            <div class="position-sticky">
+                <div class="text-white text-center py-4 border-bottom border-secondary">
+                    <i class="bi bi-shield-lock-fill fs-1"></i>
+                    <h5 class="mt-2">Админ-панель</h5>
+                </div>
+                <ul class="nav flex-column mt-3">
+                    <li class="nav-item">
+                        <a th:href="@{/admin/books}" class="nav-link text-white">
+                            <i class="bi bi-book"></i> Книги
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a th:href="@{/admin/authors}" class="nav-link active bg-primary text-white">
+                            <i class="bi bi-pen"></i> Авторы
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a th:href="@{/admin/genres}" class="nav-link text-white">
+                            <i class="bi bi-tags"></i> Жанры
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a th:href="@{/admin/users}" class="nav-link text-white">
+                            <i class="bi bi-people"></i> Пользователи
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a th:href="@{/admin/loans}" class="nav-link text-white">
+                            <i class="bi bi-journal-bookmark-fill"></i> Выдачи
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a th:href="@{/admin/stats}" class="nav-link text-white">
+                            <i class="bi bi-graph-up"></i> Статистика
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Основной контент -->
+        <main class="col-md-10 ms-sm-auto px-md-4 py-4">
+            <!-- Заголовок -->
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                <h1 class="h2">
+                    <i class="bi bi-pen-fill"></i> Авторы
+                </h1>
+                <div>
+                    <a th:href="@{/admin/books}" class="btn btn-sm btn-outline-secondary me-2">
+                        <i class="bi bi-arrow-left"></i> Назад к книгам
+                    </a>
+                </div>
+            </div>
+
+            <!-- Карточка добавления автора -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h3 class="h5 mb-0">
+                        <i class="bi bi-plus-circle"></i> Добавить автора
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/admin/authors}" method="post" class="needs-validation">
+                        <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="fullName" class="form-label">
+                                    <i class="bi bi-person-badge"></i> ФИО <span class="text-danger">*</span>
+                                </label>
+                                <input type="text" class="form-control" id="fullName" name="fullName"
+                                       placeholder="Иванов Иван Иванович" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="biography" class="form-label">
+                                    <i class="bi bi-file-text"></i> Биография
+                                </label>
+                                <input type="text" class="form-control" id="biography" name="biography"
+                                       placeholder="Краткая информация об авторе">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="birthDate" class="form-label">
+                                    <i class="bi bi-calendar-birthday"></i> Дата рождения
+                                </label>
+                                <input type="date" class="form-control" id="birthDate" name="birthDate">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="dateOfDeath" class="form-label">
+                                    <i class="bi bi-calendar-x"></i> Дата смерти
+                                </label>
+                                <input type="date" class="form-control" id="dateOfDeath" name="dateOfDeath">
+                            </div>
+                            <div class="col-md-3 align-self-end">
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="bi bi-save"></i> Добавить автора
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Таблица авторов -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h3 class="h5 mb-0">
+                        <i class="bi bi-list-ul"></i> Список авторов
+                    </h3>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>ФИО</th>
+                                <th>Биография</th>
+                                <th>Дата рождения</th>
+                                <th>Дата смерти</th>
+                                <th>Действия</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:if="${#lists.isEmpty(authors)}">
+                                <td colspan="6" class="text-center text-muted py-5">
+                                    <i class="bi bi-emoji-frown" style="font-size: 2rem;"></i>
+                                    <div class="mt-2">Авторов пока нет</div>
+                                    <small class="text-muted">Добавьте первого автора через форму выше</small>
+                                </td>
+                            </tr>
+                            <tr th:each="author : ${authors}">
+                                <td class="fw-bold" th:text="${author.id}"></td>
+                                <td>
+                                    <strong th:text="${author.fullName}"></strong>
+                                    <div class="small text-muted mt-1">
+                                        <span th:if="${author.biography != null}" th:text="'📖 ' + ${#strings.abbreviate(author.biography, 50)}"></span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span th:text="${author.biography != null ? #strings.abbreviate(author.biography, 60) : '—'}"></span>
+                                </td>
+                                <td>
+                                    <i class="bi bi-calendar3"></i>
+                                    <span th:text="${#temporals.format(author.birthDate, 'dd.MM.yyyy')}"></span>
+                                </td>
+                                <td>
+                                    <i th:if="${author.dateOfDeath != null}" class="bi bi-calendar-x text-danger"></i>
+                                    <span th:if="${author.dateOfDeath != null}" th:text="${#temporals.format(author.dateOfDeath, 'dd.MM.yyyy')}"></span>
+                                    <span th:if="${author.dateOfDeath == null}" class="text-muted">—</span>
+                                </td>
+                                <td>
+                                    <!-- Кнопка, открывающая модальное окно -->
+                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#deleteModal"
+                                            th:data-author-id="${author.id}"
+                                            th:data-author-name="${author.fullName}">
+                                        <i class="bi bi-trash"></i> Удалить
+                                    </button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
 </div>
 
-<h1>Авторы</h1>
-
-<h3>Добавить автора</h3>
-<form th:action="@{/admin/authors}" method="post">
-    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-    <div class="form-grid">
-        <input type="text" name="fullName" placeholder="ФИО" required />
-        <input type="text" name="biography" placeholder="Биография" />
-        <input type="date" name="birthDate" placeholder="Дата рождения" />
-        <input type="date" name="dateOfDeath" placeholder="Дата смерти" />
+<!-- Модальное окно подтверждения удаления -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="bi bi-exclamation-triangle-fill"></i> Подтверждение удаления
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Вы действительно хотите удалить автора:</p>
+                <p class="fw-bold fs-5 text-danger" id="authorNameModal"></p>
+                <p class="text-muted small">Это действие нельзя отменить. Все книги этого автора останутся в системе, но автор будет отвязан.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x-circle"></i> Отмена
+                </button>
+                <form th:action="@{/admin/authors/{id}/delete(id=0)}" method="post" id="deleteForm">
+                    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Удалить
+                    </button>
+                </form>
+            </div>
+        </div>
     </div>
-    <button type="submit" style="margin-top: 8px;">Добавить</button>
-</form>
+</div>
 
-<table>
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>ФИО</th>
-        <th>Биография</th>
-        <th>Дата рождения</th>
-        <th>Дата смерти</th>
-        <th>Действия</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:if="${#lists.isEmpty(authors)}">
-        <td colspan="6">Авторов пока нет</td>
-    </tr>
-    <tr th:each="author : ${authors}">
-        <td th:text="${author.id}"></td>
-        <td th:text="${author.fullName}"></td>
-        <td th:text="${author.biography}"></td>
-        <td th:text="${author.birthDate}"></td>
-        <td th:text="${author.dateOfDeath}"></td>
-        <td>
-            <form th:action="@{/admin/authors/{id}/delete(id=${author.id})}" method="post">
-                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                <button type="submit">Удалить</button>
-            </form>
-        </td>
-    </tr>
-    </tbody>
-</table>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Скрипт для передачи данных в модальное окно -->
+<script>
+    // Получаем все кнопки удаления
+    const deleteButtons = document.querySelectorAll('[data-bs-target="#deleteModal"]');
+    const modal = document.getElementById('deleteModal');
+    const authorNameSpan = document.getElementById('authorNameModal');
+    const deleteForm = document.getElementById('deleteForm');
+
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const authorId = this.getAttribute('data-author-id');
+            const authorName = this.getAttribute('data-author-name');
+
+            // Обновляем текст в модальном окне
+            authorNameSpan.textContent = authorName;
+
+            // Обновляем action формы удаления
+            const actionUrl = '/admin/authors/' + authorId + '/delete';
+            deleteForm.action = actionUrl;
+        });
+    });
+</script>
+
+<!-- Дополнительные стили для адаптивности -->
+<style>
+    @media (max-width: 768px) {
+        .vh-100 {
+            height: auto !important;
+            min-height: auto;
+        }
+        .bg-dark {
+            position: relative;
+        }
+    }
+    .table td {
+        vertical-align: middle;
+    }
+</style>
 </body>
 </html>

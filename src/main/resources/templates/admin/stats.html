@@ -1,71 +1,533 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Админ: Статистика</title>
-    <style>
-        table { width: 60%; border-collapse: collapse; margin-top: 16px; }
-        th, td { padding: 8px; border: 1px solid #ddd; text-align: left; }
-        th { background-color: #f4f4f4; }
-        .nav a { margin-right: 10px; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ: Статистика | Библиотека</title>
+
+    <!-- Bootstrap 5 CSS + Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <!-- Chart.js для графиков -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
-<body>
-<div class="nav">
-    <a th:href="@{/admin/books}">Книги</a>
-    <a th:href="@{/admin/authors}">Авторы</a>
-    <a th:href="@{/admin/genres}">Жанры</a>
-    <a th:href="@{/admin/users}">Пользователи</a>
-    <a th:href="@{/admin/loans}">Выдачи</a>
-    <a th:href="@{/admin/stats}">Статистика</a>
+<body class="bg-light">
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Боковая навигация -->
+        <nav class="col-md-2 d-md-block bg-dark vh-100 p-0">
+            <div class="position-sticky">
+                <div class="text-white text-center py-4 border-bottom border-secondary">
+                    <i class="bi bi-shield-lock-fill fs-1"></i>
+                    <h5 class="mt-2">Админ-панель</h5>
+                </div>
+                <ul class="nav flex-column mt-3">
+                    <li class="nav-item">
+                        <a th:href="@{/admin/books}" class="nav-link text-white">
+                            <i class="bi bi-book"></i> Книги
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a th:href="@{/admin/authors}" class="nav-link text-white">
+                            <i class="bi bi-pen"></i> Авторы
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a th:href="@{/admin/genres}" class="nav-link text-white">
+                            <i class="bi bi-tags"></i> Жанры
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a th:href="@{/admin/users}" class="nav-link text-white">
+                            <i class="bi bi-people"></i> Пользователи
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a th:href="@{/admin/loans}" class="nav-link text-white">
+                            <i class="bi bi-journal-bookmark-fill"></i> Выдачи
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a th:href="@{/admin/stats}" class="nav-link active bg-primary text-white">
+                            <i class="bi bi-graph-up"></i> Статистика
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Основной контент -->
+        <main class="col-md-10 ms-sm-auto px-md-4 py-4">
+            <!-- Заголовок -->
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                <h1 class="h2">
+                    <i class="bi bi-graph-up"></i> Статистика библиотеки
+                </h1>
+                <div class="btn-group">
+                    <button type="button" class="btn btn-sm btn-outline-secondary" onclick="window.location.reload()">
+                        <i class="bi bi-arrow-repeat"></i> Обновить
+                    </button>
+                </div>
+            </div>
+
+            <!-- Основные метрики (карточки) -->
+            <div class="row mb-4">
+                <div class="col-md-6 col-lg-3 mb-3">
+                    <div class="card bg-primary text-white shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-title">Всего книг</h6>
+                                    <h2 class="mb-0" th:text="${totalBooks}">0</h2>
+                                    <small class="opacity-75">в библиотеке</small>
+                                </div>
+                                <i class="bi bi-book fs-1 opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3 mb-3">
+                    <div class="card bg-info text-white shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-title">Пользователи</h6>
+                                    <h2 class="mb-0" th:text="${totalUsers}">0</h2>
+                                    <small class="opacity-75">зарегистрировано</small>
+                                </div>
+                                <i class="bi bi-people fs-1 opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3 mb-3">
+                    <div class="card bg-warning text-dark shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-title">Активные брони</h6>
+                                    <h2 class="mb-0" th:text="${booked}">0</h2>
+                                    <small class="opacity-75">ожидают выдачи</small>
+                                </div>
+                                <i class="bi bi-bookmark-plus fs-1 opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3 mb-3">
+                    <div class="card bg-success text-white shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-title">Активные выдачи</h6>
+                                    <h2 class="mb-0" th:text="${borrowed}">0</h2>
+                                    <small class="opacity-75">на руках</small>
+                                </div>
+                                <i class="bi bi-book-half fs-1 opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-6 mb-3">
+                    <div class="card bg-danger text-white shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-title">Просроченные выдачи</h6>
+                                    <h2 class="mb-0" th:text="${overdue}">0</h2>
+                                    <small class="opacity-75">требуют внимания</small>
+                                </div>
+                                <i class="bi bi-exclamation-triangle fs-1 opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="card bg-secondary text-white shadow-sm h-100">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-title">Возвраты</h6>
+                                    <h2 class="mb-0" th:text="${returned}">0</h2>
+                                    <small class="opacity-75">за всё время</small>
+                                </div>
+                                <i class="bi bi-arrow-return-left fs-1 opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Графики -->
+            <div class="row mb-4">
+                <div class="col-lg-6 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-pie-chart"></i> Распределение выдач
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="loansChart" height="250"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 mb-4">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-white">
+                            <h5 class="mb-0">
+                                <i class="bi bi-bar-chart"></i> Активность по статусам
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <canvas id="statusChart" height="250"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Подробная таблица -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-table"></i> Детальная статистика
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-dark">
+                            <tr>
+                                <th>Показатель</th>
+                                <th>Значение</th>
+                                <th>Статус</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td class="fw-bold">
+                                    <i class="bi bi-book"></i> Всего книг
+                                </td>
+                                <td th:text="${totalBooks}">0</td>
+                                <td>
+                                    <span class="badge bg-primary">Общее количество</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">
+                                    <i class="bi bi-people"></i> Всего пользователей
+                                </td>
+                                <td th:text="${totalUsers}">0</td>
+                                <td>
+                                    <span class="badge bg-info">Аккаунты</span>
+                                </td>
+                            </tr>
+                            <tr class="table-warning">
+                                <td class="fw-bold">
+                                    <i class="bi bi-bookmark-plus"></i> Активные брони
+                                </td>
+                                <td th:text="${booked}">0</td>
+                                <td>
+                                        <span th:if="${booked > 0}" class="badge bg-warning text-dark">
+                                            <i class="bi bi-clock"></i> Ожидают выдачи
+                                        </span>
+                                    <span th:if="${booked == 0}" class="badge bg-success">
+                                            <i class="bi bi-check"></i> Нет активных
+                                        </span>
+                                </td>
+                            </tr>
+                            <tr class="table-success">
+                                <td class="fw-bold">
+                                    <i class="bi bi-book-half"></i> Активные выдачи
+                                </td>
+                                <td th:text="${borrowed}">0</td>
+                                <td>
+                                        <span th:if="${borrowed > 0}" class="badge bg-success">
+                                            <i class="bi bi-check-circle"></i> На руках
+                                        </span>
+                                    <span th:if="${borrowed == 0}" class="badge bg-secondary">
+                                            <i class="bi bi-check"></i> Нет выдач
+                                        </span>
+                                </td>
+                            </tr>
+                            <tr class="table-danger">
+                                <td class="fw-bold">
+                                    <i class="bi bi-exclamation-triangle"></i> Просроченные выдачи
+                                </td>
+                                <td th:text="${overdue}">0</td>
+                                <td>
+                                        <span th:if="${overdue > 0}" class="badge bg-danger">
+                                            <i class="bi bi-alarm"></i> Требуют внимания!
+                                        </span>
+                                    <span th:if="${overdue == 0}" class="badge bg-success">
+                                            <i class="bi bi-check-all"></i> Всё в порядке
+                                        </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">
+                                    <i class="bi bi-arrow-return-left"></i> Возвраты
+                                </td>
+                                <td th:text="${returned}">0</td>
+                                <td>
+                                    <span class="badge bg-secondary">За всё время</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">
+                                    <i class="bi bi-percent"></i> Процент возвратов
+                                </td>
+                                <td>
+                                    <span th:text="${#numbers.formatDecimal((returned / (borrowed + returned)) * 100, 1, 'COMMA')}"></span>%
+                                </td>
+                                <td>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar bg-success"
+                                             th:style="'width: ' + (returned / (borrowed + returned)) * 100 + '%'"
+                                             th:attr="aria-valuenow=${(returned / (borrowed + returned)) * 100}"
+                                             aria-valuemin="0" aria-valuemax="100">
+                                            <span th:text="${#numbers.formatDecimal((returned / (borrowed + returned)) * 100, 1, 'COMMA')} + '%'"></span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Генерация отчетов -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-file-text"></i> Генерация отчетов
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/admin/report/generate}" method="post" class="row g-3">
+                        <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+
+                        <div class="col-md-4">
+                            <label class="form-label">Тип отчета</label>
+                            <select class="form-select" name="reportType">
+                                <option value="full">Полный отчет</option>
+                                <option value="loans">Отчет по выдачам</option>
+                                <option value="users">Отчет по пользователям</option>
+                                <option value="books">Отчет по книгам</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Формат</label>
+                            <select class="form-select" name="format">
+                                <option value="pdf">PDF</option>
+                                <option value="excel">Excel</option>
+                                <option value="csv">CSV</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Период</label>
+                            <select class="form-select" name="period">
+                                <option value="all">За всё время</option>
+                                <option value="month">За месяц</option>
+                                <option value="week">За неделю</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-file-earmark-text"></i> Сформировать отчет
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Информация о сгенерированном отчете -->
+                    <div th:if="${reportId}" class="alert alert-success mt-3 fade show" role="alert">
+                        <i class="bi bi-check-circle-fill"></i>
+                        <strong>Отчет сформирован!</strong>
+                        <p class="mb-0 mt-1">
+                            ID отчета: <b th:text="${reportId}"></b><br>
+                            <a th:href="@{/report/{id}(id=${reportId})}" class="alert-link">
+                                <i class="bi bi-download"></i> Скачать отчет
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
 </div>
 
-<h1>Статистика</h1>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-<table>
-    <thead>
-    <tr>
-        <th>Показатель</th>
-        <th>Значение</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr>
-        <td>Всего книг</td>
-        <td th:text="${totalBooks}"></td>
-    </tr>
-    <tr>
-        <td>Всего пользователей</td>
-        <td th:text="${totalUsers}"></td>
-    </tr>
-    <tr>
-        <td>Активные брони</td>
-        <td th:text="${booked}"></td>
-    </tr>
-    <tr>
-        <td>Активные выдачи</td>
-        <td th:text="${borrowed}"></td>
-    </tr>
-    <tr>
-        <td>Просроченные выдачи</td>
-        <td th:text="${overdue}"></td>
-    </tr>
-    <tr>
-        <td>Возвраты</td>
-        <td th:text="${returned}"></td>
-    </tr>
-    </tbody>
-</table>
+<script>
+    // Инициализация графиков
+    document.addEventListener('DOMContentLoaded', function() {
+        // Получаем данные из Thymeleaf
+        const booked = [[${booked}]] || 0;
+        const borrowed = [[${borrowed}]] || 0;
+        const overdue = [[${overdue}]] || 0;
+        const returned = [[${returned}]] || 0;
 
-<h3>Отчеты</h3>
-<form th:action="@{/admin/report/generate}" method="post">
-    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-    <button type="submit">Сформировать отчет</button>
-</form>
+        // График 1: Распределение выдач
+        const loansCtx = document.getElementById('loansChart').getContext('2d');
+        new Chart(loansCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Активные выдачи', 'Просроченные', 'Возвращено'],
+                datasets: [{
+                    data: [borrowed, overdue, returned],
+                    backgroundColor: ['#28a745', '#dc3545', '#6c757d'],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
 
-<div th:if="${reportId}" style="margin-top: 12px;">
-    Отчет формируется. ID: <b th:text="${reportId}"></b>. Перейти к отчету:
-    <a th:href="@{/report/{id}(id=${reportId})}">Открыть</a>
-</div>
+        // График 2: Активность по статусам
+        const statusCtx = document.getElementById('statusChart').getContext('2d');
+        new Chart(statusCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Брони', 'Выдачи', 'Просрочки'],
+                datasets: [{
+                    label: 'Количество',
+                    data: [booked, borrowed, overdue],
+                    backgroundColor: ['#ffc107', '#28a745', '#dc3545'],
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    });
+
+    // Анимация счетчиков (опционально)
+    function animateValue(element, start, end, duration) {
+        if (!element) return;
+        const range = end - start;
+        const stepTime = Math.abs(Math.floor(duration / range));
+        let current = start;
+        const timer = setInterval(() => {
+            current += Math.sign(range);
+            element.textContent = current;
+            if (current === end) clearInterval(timer);
+        }, stepTime);
+    }
+
+    // Запускаем анимацию для метрик (если нужно)
+    // const counters = document.querySelectorAll('.card-body h2');
+    // counters.forEach(counter => {
+    //     const finalValue = parseInt(counter.textContent);
+    //     counter.textContent = '0';
+    //     animateValue(counter, 0, finalValue, 1000);
+    // });
+</script>
+
+<style>
+    /* Дополнительные стили */
+    @media (max-width: 768px) {
+        .vh-100 {
+            height: auto !important;
+            min-height: auto;
+        }
+    }
+
+    /* Анимация для карточек */
+    .card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+
+    /* Стили для таблицы */
+    .table td {
+        vertical-align: middle;
+    }
+
+    /* Прогресс-бар */
+    .progress {
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    .progress-bar {
+        line-height: 20px;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    /* Анимация для алертов */
+    .alert {
+        animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+        from {
+            transform: translateY(-20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    /* Кнопки */
+    .btn {
+        transition: all 0.2s;
+    }
+
+    .btn:hover {
+        transform: translateY(-1px);
+    }
+</style>
 </body>
 </html>

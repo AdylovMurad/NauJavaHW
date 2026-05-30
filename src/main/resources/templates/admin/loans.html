@@ -1,124 +1,409 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Админ: Выдачи</title>
-    <style>
-        table { width: 100%; border-collapse: collapse; margin-top: 16px; }
-        th, td { padding: 8px; border: 1px solid #ddd; text-align: left; }
-        th { background-color: #f4f4f4; }
-        .nav a { margin-right: 10px; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ: Выдачи | Библиотека</title>
+
+    <!-- Bootstrap 5 CSS + Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
-<body>
-<div class="nav">
-    <a th:href="@{/admin/books}">Книги</a>
-    <a th:href="@{/admin/authors}">Авторы</a>
-    <a th:href="@{/admin/genres}">Жанры</a>
-    <a th:href="@{/admin/users}">Пользователи</a>
-    <a th:href="@{/admin/loans}">Выдачи</a>
-    <a th:href="@{/admin/stats}">Статистика</a>
+<body class="bg-light">
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Боковая навигация -->
+        <nav class="col-md-2 d-md-block bg-dark vh-100 p-0">
+            <div class="position-sticky">
+                <div class="text-white text-center py-4 border-bottom border-secondary">
+                    <i class="bi bi-shield-lock-fill fs-1"></i>
+                    <h5 class="mt-2">Админ-панель</h5>
+                </div>
+                <ul class="nav flex-column mt-3">
+                    <li class="nav-item">
+                        <a th:href="@{/admin/books}" class="nav-link text-white">
+                            <i class="bi bi-book"></i> Книги
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a th:href="@{/admin/authors}" class="nav-link text-white">
+                            <i class="bi bi-pen"></i> Авторы
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a th:href="@{/admin/genres}" class="nav-link text-white">
+                            <i class="bi bi-tags"></i> Жанры
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a th:href="@{/admin/users}" class="nav-link text-white">
+                            <i class="bi bi-people"></i> Пользователи
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a th:href="@{/admin/loans}" class="nav-link active bg-primary text-white">
+                            <i class="bi bi-journal-bookmark-fill"></i> Выдачи
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a th:href="@{/admin/stats}" class="nav-link text-white">
+                            <i class="bi bi-graph-up"></i> Статистика
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Основной контент -->
+        <main class="col-md-10 ms-sm-auto px-md-4 py-4">
+            <!-- Заголовок -->
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                <h1 class="h2">
+                    <i class="bi bi-journal-bookmark-fill"></i> Управление выдачами и бронями
+                </h1>
+            </div>
+
+            <!-- Статистика -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card bg-warning text-dark shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-title">Бронирования</h6>
+                                    <h3 class="mb-0" th:text="${#lists.size(booked)}">0</h3>
+                                </div>
+                                <i class="bi bi-bookmark-plus fs-1 opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-success text-white shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-title">Выдано книг</h6>
+                                    <h3 class="mb-0" th:text="${#lists.size(borrowed)}">0</h3>
+                                </div>
+                                <i class="bi bi-book-half fs-1 opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-danger text-white shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-title">Просрочено</h6>
+                                    <h3 class="mb-0" th:text="${#lists.size(overdue)}">0</h3>
+                                </div>
+                                <i class="bi bi-exclamation-triangle fs-1 opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Вкладки для разных статусов -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <ul class="nav nav-tabs card-header-tabs" id="loanTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="booked-tab" data-bs-toggle="tab"
+                                    data-bs-target="#booked" type="button" role="tab">
+                                <i class="bi bi-bookmark-plus"></i> Бронирования
+                                <span class="badge bg-warning ms-1" th:text="${#lists.size(booked)}">0</span>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="borrowed-tab" data-bs-toggle="tab"
+                                    data-bs-target="#borrowed" type="button" role="tab">
+                                <i class="bi bi-book-half"></i> Выданные книги
+                                <span class="badge bg-success ms-1" th:text="${#lists.size(borrowed)}">0</span>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="overdue-tab" data-bs-toggle="tab"
+                                    data-bs-target="#overdue" type="button" role="tab">
+                                <i class="bi bi-exclamation-triangle"></i> Просроченные
+                                <span class="badge bg-danger ms-1" th:text="${#lists.size(overdue)}">0</span>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body p-0">
+                    <div class="tab-content">
+                        <!-- Вкладка: Бронирования -->
+                        <div class="tab-pane fade show active" id="booked" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-warning">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Книга</th>
+                                        <th>Пользователь</th>
+                                        <th>Дата брони</th>
+                                        <th>Срок возврата</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:if="${#lists.isEmpty(booked)}">
+                                        <td colspan="6" class="text-center text-muted py-5">
+                                            <i class="bi bi-inbox" style="font-size: 2rem;"></i>
+                                            <div class="mt-2">Броней пока нет</div>
+                                            <small class="text-muted">Новые бронирования появятся здесь</small>
+                                        </td>
+                                    </tr>
+                                    <tr th:each="loan : ${booked}">
+                                        <td class="fw-bold" th:text="${loan.id}"></td>
+                                        <td>
+                                            <strong th:text="${loan.book != null ? loan.book.title : 'Не указано'}"></strong>
+                                            <div th:if="${loan.book != null}" class="small text-muted">
+                                                <span th:if="${loan.book.author != null}" th:text="'Автор: ' + ${loan.book.author.fullName}"></span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <i class="bi bi-person-circle"></i>
+                                            <span th:text="${loan.user != null ? loan.user.username : 'Не указан'}"></span>
+                                            <div th:if="${loan.user != null}" class="small text-muted">
+                                                <span th:text="${loan.user.email}"></span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <i class="bi bi-calendar3"></i>
+                                            <span th:text="${#temporals.format(loan.loanDate, 'dd.MM.yyyy HH:mm')}"></span>
+                                        </td>
+                                        <td>
+                                            <i class="bi bi-calendar-exclamation"></i>
+                                            <span th:text="${#temporals.format(loan.returnDeadline, 'dd.MM.yyyy')}"></span>
+                                            <div th:if="${loan.returnDeadline != null && #temporals.isBefore(#temporals.createNow(), #temporals.plusDays(#temporals.createNow(), 3))}"
+                                                 class="small text-warning">
+                                                <i class="bi bi-hourglass-split"></i> Скоро истекает
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <form th:action="@{/admin/loans/issue}" method="post" class="mb-0">
+                                                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                                <input type="hidden" name="loanId" th:value="${loan.id}" />
+                                                <button type="submit" class="btn btn-sm btn-success">
+                                                    <i class="bi bi-check-circle"></i> Выдать
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Вкладка: Выданные книги -->
+                        <div class="tab-pane fade" id="borrowed" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-success">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Книга</th>
+                                        <th>Пользователь</th>
+                                        <th>Дата выдачи</th>
+                                        <th>Срок возврата</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:if="${#lists.isEmpty(borrowed)}">
+                                        <td colspan="6" class="text-center text-muted py-5">
+                                            <i class="bi bi-book" style="font-size: 2rem;"></i>
+                                            <div class="mt-2">Выданных книг пока нет</div>
+                                            <small class="text-muted">Все книги в библиотеке</small>
+                                        </td>
+                                    </tr>
+                                    <tr th:each="loan : ${borrowed}">
+                                        <td class="fw-bold" th:text="${loan.id}"></td>
+                                        <td>
+                                            <strong th:text="${loan.book != null ? loan.book.title : 'Не указано'}"></strong>
+                                            <div th:if="${loan.book != null}" class="small text-muted">
+                                                <span th:if="${loan.book.isbn != null}" th:text="'ISBN: ' + ${loan.book.isbn}"></span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <i class="bi bi-person-circle"></i>
+                                            <span th:text="${loan.user != null ? loan.user.username : 'Не указан'}"></span>
+                                            <div th:if="${loan.user != null}" class="small text-muted">
+                                                <span th:text="${loan.user.email}"></span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <i class="bi bi-calendar3"></i>
+                                            <span th:text="${#temporals.format(loan.loanDate, 'dd.MM.yyyy HH:mm')}"></span>
+                                        </td>
+                                        <td>
+                                            <i class="bi bi-calendar-exclamation"></i>
+                                            <span th:text="${#temporals.format(loan.returnDeadline, 'dd.MM.yyyy')}"></span>
+                                            <div th:if="${loan.returnDeadline != null && #temporals.isBefore(loan.returnDeadline, #temporals.createNow())}"
+                                                 class="small text-danger">
+                                                <i class="bi bi-clock-history"></i> Просрочена!
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <form th:action="@{/admin/loans/return}" method="post" class="mb-0">
+                                                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                                <input type="hidden" name="loanId" th:value="${loan.id}" />
+                                                <button type="submit" class="btn btn-sm btn-primary">
+                                                    <i class="bi bi-arrow-return-left"></i> Вернуть
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Вкладка: Просроченные -->
+                        <div class="tab-pane fade" id="overdue" role="tabpanel">
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-danger">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Книга</th>
+                                        <th>Пользователь</th>
+                                        <th>Дата выдачи</th>
+                                        <th>Срок возврата</th>
+                                        <th>Просрочка</th>
+                                        <th>Действия</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <tr th:if="${#lists.isEmpty(overdue)}">
+                                        <td colspan="7" class="text-center text-muted py-5">
+                                            <i class="bi bi-check-circle-fill text-success" style="font-size: 2rem;"></i>
+                                            <div class="mt-2">Просроченных книг нет</div>
+                                            <small class="text-muted">Отличная работа! Все книги возвращаются вовремя</small>
+                                        </td>
+                                    </tr>
+                                    <tr th:each="loan : ${overdue}">
+                                        <td class="fw-bold" th:text="${loan.id}"></td>
+                                        <td>
+                                            <strong th:text="${loan.book != null ? loan.book.title : 'Не указано'}"></strong>
+                                            <div th:if="${loan.book != null}" class="small text-muted">
+                                                <span th:if="${loan.book.author != null}" th:text="'Автор: ' + ${loan.book.author.fullName}"></span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <i class="bi bi-person-circle"></i>
+                                            <span th:text="${loan.user != null ? loan.user.username : 'Не указан'}"></span>
+                                            <div th:if="${loan.user != null}" class="small text-muted">
+                                                <span th:text="${loan.user.email}"></span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <i class="bi bi-calendar3"></i>
+                                            <span th:text="${#temporals.format(loan.loanDate, 'dd.MM.yyyy HH:mm')}"></span>
+                                        </td>
+                                        <td>
+                                            <i class="bi bi-calendar-x"></i>
+                                            <span class="text-danger" th:text="${#temporals.format(loan.returnDeadline, 'dd.MM.yyyy')}"></span>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-danger">
+                                                <i class="bi bi-clock"></i>
+                                                <span th:text="${#temporals.daysBetween(loan.returnDeadline, #temporals.createNow())}"></span> дней
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <form th:action="@{/admin/loans/return}" method="post" class="mb-0">
+                                                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                                                <input type="hidden" name="loanId" th:value="${loan.id}" />
+                                                <button type="submit" class="btn btn-sm btn-warning">
+                                                    <i class="bi bi-arrow-return-left"></i> Вернуть
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
 </div>
 
-<h1>Выдачи и брони</h1>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-<h2>Бронирования</h2>
-<table>
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Книга</th>
-        <th>Пользователь</th>
-        <th>Дата брони</th>
-        <th>Срок возврата</th>
-        <th>Действия</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:if="${#lists.isEmpty(booked)}">
-        <td colspan="6">Броней пока нет</td>
-    </tr>
-    <tr th:each="loan : ${booked}">
-        <td th:text="${loan.id}"></td>
-        <td th:text="${loan.book != null ? loan.book.title : 'Не указано'}"></td>
-        <td th:text="${loan.user != null ? loan.user.username : 'Не указан'}"></td>
-        <td th:text="${loan.loanDate}"></td>
-        <td th:text="${loan.returnDeadline}"></td>
-        <td>
-            <form th:action="@{/admin/loans/issue}" method="post">
-                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                <input type="hidden" name="loanId" th:value="${loan.id}" />
-                <button type="submit">Выдать</button>
-            </form>
-        </td>
-    </tr>
-    </tbody>
-</table>
+<!-- Дополнительный скрипт для автообновления времени -->
+<script>
+    // Подсветка строк с просрочкой
+    document.addEventListener('DOMContentLoaded', function() {
+        // Добавляем класс для строк с просрочкой в таблице выданных
+        const borrowedRows = document.querySelectorAll('#borrowed tbody tr');
+        borrowedRows.forEach(row => {
+            const deadlineCell = row.cells[4];
+            if (deadlineCell && deadlineCell.querySelector('.text-danger')) {
+                row.classList.add('table-danger');
+            }
+        });
+    });
+</script>
 
-<h2>Выданные книги</h2>
-<table>
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Книга</th>
-        <th>Пользователь</th>
-        <th>Дата выдачи</th>
-        <th>Срок возврата</th>
-        <th>Действия</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:if="${#lists.isEmpty(borrowed)}">
-        <td colspan="6">Выданных книг пока нет</td>
-    </tr>
-    <tr th:each="loan : ${borrowed}">
-        <td th:text="${loan.id}"></td>
-        <td th:text="${loan.book != null ? loan.book.title : 'Не указано'}"></td>
-        <td th:text="${loan.user != null ? loan.user.username : 'Не указан'}"></td>
-        <td th:text="${loan.loanDate}"></td>
-        <td th:text="${loan.returnDeadline}"></td>
-        <td>
-            <form th:action="@{/admin/loans/return}" method="post">
-                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                <input type="hidden" name="loanId" th:value="${loan.id}" />
-                <button type="submit">Вернуть</button>
-            </form>
-        </td>
-    </tr>
-    </tbody>
-</table>
+<style>
+    /* Дополнительные стили */
+    @media (max-width: 768px) {
+        .vh-100 {
+            height: auto !important;
+            min-height: auto;
+        }
 
-<h2>Просроченные</h2>
-<table>
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Книга</th>
-        <th>Пользователь</th>
-        <th>Дата выдачи</th>
-        <th>Срок возврата</th>
-        <th>Действия</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:if="${#lists.isEmpty(overdue)}">
-        <td colspan="6">Просроченных книг пока нет</td>
-    </tr>
-    <tr th:each="loan : ${overdue}">
-        <td th:text="${loan.id}"></td>
-        <td th:text="${loan.book != null ? loan.book.title : 'Не указано'}"></td>
-        <td th:text="${loan.user != null ? loan.user.username : 'Не указан'}"></td>
-        <td th:text="${loan.loanDate}"></td>
-        <td th:text="${loan.returnDeadline}"></td>
-        <td>
-            <form th:action="@{/admin/loans/return}" method="post">
-                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                <input type="hidden" name="loanId" th:value="${loan.id}" />
-                <button type="submit">Вернуть</button>
-            </form>
-        </td>
-    </tr>
-    </tbody>
-</table>
+        .nav-tabs {
+            flex-direction: column;
+        }
+
+        .nav-tabs .nav-item {
+            margin-bottom: 0.5rem;
+        }
+    }
+
+    /* Анимация для вкладок */
+    .tab-pane {
+        transition: opacity 0.15s linear;
+    }
+
+    /* Стили для таблиц */
+    .table td {
+        vertical-align: middle;
+    }
+
+    /* Анимация для кнопок */
+    .btn {
+        transition: all 0.2s;
+    }
+
+    .btn:hover {
+        transform: translateY(-1px);
+    }
+
+    /* Бейджи в заголовках вкладок */
+    .nav-link .badge {
+        font-size: 0.7rem;
+    }
+
+    /* Карточки статистики */
+    .card {
+        transition: transform 0.2s;
+    }
+
+    .card:hover {
+        transform: translateY(-3px);
+    }
+</style>
 </body>
 </html>

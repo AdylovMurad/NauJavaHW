@@ -1,66 +1,405 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Админ: Жанры</title>
-    <style>
-        table { width: 100%; border-collapse: collapse; margin-top: 16px; }
-        th, td { padding: 8px; border: 1px solid #ddd; text-align: left; }
-        th { background-color: #f4f4f4; }
-        .nav a { margin-right: 10px; }
-        .form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ: Жанры | Библиотека</title>
+
+    <!-- Bootstrap 5 CSS + Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
-<body>
-<div class="nav">
-    <a th:href="@{/admin/books}">Книги</a>
-    <a th:href="@{/admin/authors}">Авторы</a>
-    <a th:href="@{/admin/genres}">Жанры</a>
-    <a th:href="@{/admin/users}">Пользователи</a>
-    <a th:href="@{/admin/loans}">Выдачи</a>
-    <a th:href="@{/admin/stats}">Статистика</a>
+<body class="bg-light">
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Боковая навигация -->
+        <nav class="col-md-2 d-md-block bg-dark vh-100 p-0">
+            <div class="position-sticky">
+                <div class="text-white text-center py-4 border-bottom border-secondary">
+                    <i class="bi bi-shield-lock-fill fs-1"></i>
+                    <h5 class="mt-2">Админ-панель</h5>
+                </div>
+                <ul class="nav flex-column mt-3">
+                    <li class="nav-item">
+                        <a th:href="@{/admin/books}" class="nav-link text-white">
+                            <i class="bi bi-book"></i> Книги
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a th:href="@{/admin/authors}" class="nav-link text-white">
+                            <i class="bi bi-pen"></i> Авторы
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a th:href="@{/admin/genres}" class="nav-link active bg-primary text-white">
+                            <i class="bi bi-tags"></i> Жанры
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a th:href="@{/admin/users}" class="nav-link text-white">
+                            <i class="bi bi-people"></i> Пользователи
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a th:href="@{/admin/loans}" class="nav-link text-white">
+                            <i class="bi bi-journal-bookmark-fill"></i> Выдачи
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a th:href="@{/admin/stats}" class="nav-link text-white">
+                            <i class="bi bi-graph-up"></i> Статистика
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+
+        <!-- Основной контент -->
+        <main class="col-md-10 ms-sm-auto px-md-4 py-4">
+            <!-- Заголовок -->
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pb-2 mb-3 border-bottom">
+                <h1 class="h2">
+                    <i class="bi bi-tags-fill"></i> Управление жанрами
+                </h1>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addGenreModal">
+                    <i class="bi bi-plus-circle"></i> Добавить жанр
+                </button>
+            </div>
+
+            <!-- Статистика -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card bg-info text-white shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-title">Всего жанров</h6>
+                                    <h2 class="mb-0" th:text="${#lists.size(genres)}">0</h2>
+                                </div>
+                                <i class="bi bi-tags fs-1 opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-success text-white shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-title">Средний индекс</h6>
+                                    <h2 class="mb-0"
+                                        th:text="${#lists.isEmpty(genres) ? 0 : #numbers.formatDecimal(genres.![popularityIndex != null ? popularityIndex : 0].sum() / #lists.size(genres), 0, 'COMMA')}">
+                                        0
+                                    </h2>
+                                </div>
+                                <i class="bi bi-bar-chart fs-1 opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card bg-warning text-dark shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <h6 class="card-title">Популярные (>70%)</h6>
+                                    <h2 class="mb-0" th:text="${#lists.size(genres.?[popularityIndex != null and popularityIndex >= 70])}">0</h2>
+                                </div>
+                                <i class="bi bi-star-fill fs-1 opacity-50"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Таблица жанров -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">
+                        <i class="bi bi-list-ul"></i> Список жанров
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-dark">
+                            <tr>
+                                <th style="width: 5%">ID</th>
+                                <th style="width: 20%">Название</th>
+                                <th style="width: 35%">Описание</th>
+                                <th style="width: 20%">Индекс популярности</th>
+                                <th style="width: 20%">Действия</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:if="${#lists.isEmpty(genres)}">
+                                <td colspan="5" class="text-center text-muted py-5">
+                                    <i class="bi bi-emoji-frown" style="font-size: 2rem;"></i>
+                                    <div class="mt-2">Жанров пока нет</div>
+                                    <small class="text-muted">Добавьте первый жанр через кнопку выше</small>
+                                </td>
+                            </tr>
+                            <tr th:each="genre : ${genres}">
+                                <td class="fw-bold" th:text="${genre.id}"></td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="me-2">
+                                            <span class="badge bg-secondary" th:text="${#strings.substring(genre.name, 0, 2)}"></span>
+                                        </div>
+                                        <strong th:text="${genre.name}"></strong>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span th:text="${genre.description != null ? genre.description : '—'}"
+                                          class="text-muted"></span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center" th:if="${genre.popularityIndex != null}">
+                                        <div class="progress flex-grow-1 me-2" style="height: 8px;">
+                                            <div class="progress-bar" role="progressbar"
+                                                 th:style="'width: ' + ${genre.popularityIndex} + '%'"
+                                                 th:attr="aria-valuenow=${genre.popularityIndex}"
+                                                 aria-valuemin="0" aria-valuemax="100">
+                                            </div>
+                                        </div>
+                                        <span class="badge" th:classappend="${genre.popularityIndex >= 70 ? 'bg-success' : (genre.popularityIndex >= 40 ? 'bg-warning text-dark' : 'bg-secondary')}"
+                                              th:text="${genre.popularityIndex} + '%'"></span>
+                                    </div>
+                                    <span th:unless="${genre.popularityIndex != null}" class="text-muted">—</span>
+                                </td>
+                                <td>
+                                    <!-- Кнопки действий - теперь точно в последней колонке! -->
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <button type="button" class="btn btn-outline-primary"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#editGenreModal"
+                                                th:data-genre-id="${genre.id}"
+                                                th:data-genre-name="${genre.name}"
+                                                th:data-genre-description="${genre.description}"
+                                                th:data-genre-popularity="${genre.popularityIndex}">
+                                            <i class="bi bi-pencil"></i> Редактировать
+                                        </button>
+                                        <button type="button" class="btn btn-outline-danger"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#deleteGenreModal"
+                                                th:data-genre-id="${genre.id}"
+                                                th:data-genre-name="${genre.name}">
+                                            <i class="bi bi-trash"></i> Удалить
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
 </div>
 
-<h1>Жанры</h1>
-
-<h3>Добавить жанр</h3>
-<form th:action="@{/admin/genres}" method="post">
-    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-    <div class="form-grid">
-        <input type="text" name="name" placeholder="Название" required />
-        <input type="text" name="description" placeholder="Описание" />
-        <input type="number" name="popularityIndex" placeholder="Индекс популярности" />
-    </div>
-    <button type="submit" style="margin-top: 8px;">Добавить</button>
-</form>
-
-<table>
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Название</th>
-        <th>Описание</th>
-        <th>Индекс популярности</th>
-        <th>Действия</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:if="${#lists.isEmpty(genres)}">
-        <td colspan="5">Жанров пока нет</td>
-    </tr>
-    <tr th:each="genre : ${genres}">
-        <td th:text="${genre.id}"></td>
-        <td th:text="${genre.name}"></td>
-        <td th:text="${genre.description}"></td>
-        <td th:text="${genre.popularityIndex}"></td>
-        <td>
-            <form th:action="@{/admin/genres/{id}/delete(id=${genre.id})}" method="post">
+<!-- Модальное окно для добавления жанра -->
+<div class="modal fade" id="addGenreModal" tabindex="-1" aria-labelledby="addGenreModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="addGenreModalLabel">
+                    <i class="bi bi-plus-circle"></i> Добавить жанр
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form th:action="@{/admin/genres}" method="post">
                 <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                <button type="submit">Удалить</button>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">
+                            <i class="bi bi-tag"></i> Название <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" class="form-control" id="name" name="name"
+                               placeholder="Например: Фантастика, Детектив, Роман" required autofocus>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">
+                            <i class="bi bi-file-text"></i> Описание
+                        </label>
+                        <textarea class="form-control" id="description" name="description" rows="3"
+                                  placeholder="Краткое описание жанра"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="popularityIndex" class="form-label">
+                            <i class="bi bi-bar-chart"></i> Индекс популярности (0-100)
+                        </label>
+                        <input type="number" class="form-control" id="popularityIndex" name="popularityIndex"
+                               min="0" max="100" step="1" value="50">
+                        <div class="form-text">Насколько популярен этот жанр среди читателей</div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-save"></i> Добавить
+                    </button>
+                </div>
             </form>
-        </td>
-    </tr>
-    </tbody>
-</table>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для редактирования жанра -->
+<div class="modal fade" id="editGenreModal" tabindex="-1" aria-labelledby="editGenreModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="editGenreModalLabel">
+                    <i class="bi bi-pencil-square"></i> Редактировать жанр
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" id="editGenreForm">
+                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="edit_name" class="form-label">
+                            <i class="bi bi-tag"></i> Название <span class="text-danger">*</span>
+                        </label>
+                        <input type="text" class="form-control" id="edit_name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_description" class="form-label">
+                            <i class="bi bi-file-text"></i> Описание
+                        </label>
+                        <textarea class="form-control" id="edit_description" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_popularityIndex" class="form-label">
+                            <i class="bi bi-bar-chart"></i> Индекс популярности (0-100)
+                        </label>
+                        <input type="number" class="form-control" id="edit_popularityIndex" name="popularityIndex"
+                               min="0" max="100" step="1">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Сохранить изменения
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Модальное окно для подтверждения удаления -->
+<div class="modal fade" id="deleteGenreModal" tabindex="-1" aria-labelledby="deleteGenreModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="deleteGenreModalLabel">
+                    <i class="bi bi-exclamation-triangle-fill"></i> Подтверждение удаления
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Вы действительно хотите удалить жанр:</p>
+                <p class="fw-bold fs-5 text-danger" id="genreNameModal"></p>
+                <p class="text-muted small">
+                    <i class="bi bi-info-circle"></i>
+                    Все книги этого жанра останутся в системе, но жанр будет отвязан.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                <form method="post" id="deleteGenreForm">
+                    <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash"></i> Удалить
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    // Редактирование жанра
+    const editButtons = document.querySelectorAll('[data-bs-target="#editGenreModal"]');
+    const editForm = document.getElementById('editGenreForm');
+    const editName = document.getElementById('edit_name');
+    const editDescription = document.getElementById('edit_description');
+    const editPopularity = document.getElementById('edit_popularityIndex');
+
+    editButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const genreId = this.getAttribute('data-genre-id');
+            const genreName = this.getAttribute('data-genre-name');
+            const genreDescription = this.getAttribute('data-genre-description');
+            const genrePopularity = this.getAttribute('data-genre-popularity');
+
+            editName.value = genreName;
+            editDescription.value = genreDescription && genreDescription !== 'null' ? genreDescription : '';
+            editPopularity.value = genrePopularity && genrePopularity !== 'null' ? genrePopularity : 50;
+
+            editForm.action = '/admin/genres/' + genreId + '/update';
+        });
+    });
+
+    // Удаление жанра
+    const deleteButtons = document.querySelectorAll('[data-bs-target="#deleteGenreModal"]');
+    const deleteForm = document.getElementById('deleteGenreForm');
+    const genreNameSpan = document.getElementById('genreNameModal');
+
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const genreId = this.getAttribute('data-genre-id');
+            const genreName = this.getAttribute('data-genre-name');
+
+            genreNameSpan.textContent = genreName;
+            deleteForm.action = '/admin/genres/' + genreId + '/delete';
+        });
+    });
+</script>
+
+<style>
+    @media (max-width: 768px) {
+        .vh-100 {
+            height: auto !important;
+            min-height: auto;
+        }
+    }
+
+    .card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .table td {
+        vertical-align: middle;
+    }
+
+    .btn-group .btn {
+        transition: all 0.2s;
+    }
+
+    .btn-group .btn:hover {
+        transform: translateY(-1px);
+    }
+
+    .badge {
+        font-weight: 500;
+        padding: 0.5rem 0.75rem;
+    }
+
+    .progress {
+        border-radius: 20px;
+        overflow: hidden;
+    }
+</style>
 </body>
 </html>

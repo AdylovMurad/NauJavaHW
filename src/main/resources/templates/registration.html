@@ -1,37 +1,140 @@
 ﻿<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org" lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Регистрация</title>
-</head>
-<body>
-<h2>Регистрация нового пользователя</h2>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация | Библиотека</title>
 
-<div th:if="${message}" style="color: red;">
-    <p th:text="${message}"></p>
+    <!-- Bootstrap 5 CSS + Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+<body class="bg-light">
+
+<div class="container">
+    <div class="row justify-content-center align-items-center min-vh-100">
+        <div class="col-md-6 col-lg-5">
+            <!-- Карточка регистрации -->
+            <div class="card shadow-lg border-0 rounded-4">
+                <div class="card-header bg-white border-0 pt-4 pb-0">
+                    <div class="text-center">
+                        <i class="bi bi-person-plus-fill fs-1 text-primary"></i>
+                        <h2 class="mt-2 mb-3">Регистрация</h2>
+                        <p class="text-muted">Создайте новый аккаунт</p>
+                    </div>
+                </div>
+
+                <div class="card-body p-4 pt-0">
+                    <!-- Сообщение об ошибке -->
+                    <div th:if="${message}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <span th:text="${message}"></span>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+
+                    <!-- Форма регистрации -->
+                    <form th:action="@{/registration}" method="post" class="needs-validation">
+                        <!-- Логин -->
+                        <div class="mb-3">
+                            <label for="username" class="form-label">
+                                <i class="bi bi-person-badge"></i> Логин <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-person"></i></span>
+                                <input type="text" class="form-control" id="username" name="username"
+                                       placeholder="Введите логин" required autofocus>
+                            </div>
+                            <div class="form-text">Логин должен быть уникальным</div>
+                        </div>
+
+                        <!-- Пароль -->
+                        <div class="mb-3">
+                            <label for="password" class="form-label">
+                                <i class="bi bi-key"></i> Пароль <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-lock"></i></span>
+                                <input type="password" class="form-control" id="password" name="password"
+                                       placeholder="Придумайте пароль" required>
+                                <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                            </div>
+                            <div class="form-text">Минимум 4 символа, используйте буквы и цифры</div>
+                        </div>
+
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label for="email" class="form-label">
+                                <i class="bi bi-envelope"></i> Email <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-at"></i></span>
+                                <input type="email" class="form-control" id="email" name="email"
+                                       placeholder="example@mail.com" required>
+                            </div>
+                            <div class="form-text">На этот адрес будут приходить уведомления</div>
+                        </div>
+
+                        <!-- Имя (опционально) -->
+                        <div class="mb-3">
+                            <label for="firstName" class="form-label">
+                                <i class="bi bi-person"></i> Имя
+                            </label>
+                            <input type="text" class="form-control" id="firstName" name="firstName"
+                                   placeholder="Ваше имя">
+                        </div>
+
+                        <!-- Фамилия (опционально) -->
+                        <div class="mb-4">
+                            <label for="lastName" class="form-label">
+                                <i class="bi bi-person"></i> Фамилия
+                            </label>
+                            <input type="text" class="form-control" id="lastName" name="lastName"
+                                   placeholder="Ваша фамилия">
+                        </div>
+
+                        <!-- Кнопка отправки -->
+                        <div class="d-grid gap-2 mb-3">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-check-circle"></i> Зарегистрироваться
+                            </button>
+                        </div>
+
+                        <!-- Разделитель -->
+                        <div class="text-center mt-3">
+                            <span class="text-muted">Уже есть аккаунт?</span>
+                            <a th:href="@{/login}" class="text-decoration-none ms-2">
+                                <i class="bi bi-box-arrow-in-right"></i> Войти
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Дополнительная информация -->
+            <div class="text-center mt-3 text-muted small">
+                <i class="bi bi-shield-check"></i> Все данные защищены
+            </div>
+        </div>
+    </div>
 </div>
 
-<form th:action="@{/registration}" method="post">
-    <div>
-        <label> Логин: <input type="text" name="username" required/> </label>
-    </div>
-    <div>
-        <label> Пароль: <input type="password" name="password" required/> </label>
-    </div>
-    <div>
-        <label> email: <input type="email" name="email" required /> </label>
-    </div>
-    <div>
-        <label> Имя: <input type="text" name="firstName"/> </label>
-    </div>
-    <div>
-        <label> Фамилия: <input type="text" name="lastName"/> </label>
-    </div>
-    <div>
-        <input type="submit" value="Зарегистрироваться"/>
-    </div>
-</form>
-<br>
-<a th:href="@{/login}">Уже есть аккаунт? Войти</a>
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- Скрипт для показа/скрытия пароля -->
+<script>
+    document.getElementById('togglePassword').addEventListener('click', function() {
+        const passwordInput = document.getElementById('password');
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+
+        // Меняем иконку глаза
+        const icon = this.querySelector('i');
+        icon.classList.toggle('bi-eye');
+        icon.classList.toggle('bi-eye-slash');
+    });
+</script>
 </body>
 </html>

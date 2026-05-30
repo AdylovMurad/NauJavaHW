@@ -1,88 +1,122 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Список книг</title>
-    <style>
-        table { width: 50%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 10px; border: 1px solid #ddd; text-align: left; }
-        th { background-color: #f4f4f4; }
-    </style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Список книг | Библиотека</title>
+
+    <!-- Bootstrap 5 CSS + Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 </head>
-<body>
-<h1>Список книг в библиотеке</h1>
+<body class="bg-light">
 
-<div style="margin-bottom: 16px;">
-    <a th:href="@{/ui/profile}">Личный кабинет</a>
-</div>
+<div class="container py-4">
+    <!-- Заголовок + ссылка на личный кабинет -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+        <h1 class="h2">📚 Список книг в библиотеке</h1>
+        <a th:href="@{/ui/profile}" class="btn btn-outline-secondary">
+            <i class="bi bi-person-circle"></i> Личный кабинет
+        </a>
+    </div>
 
-<div th:if="${message}" style="color: green;">
-    <p th:text="${message}"></p>
-</div>
-<div th:if="${error}" style="color: red;">
-    <p th:text="${error}"></p>
-</div>
+    <!-- Блоки сообщений -->
+    <div th:if="${message}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill"></i> <span th:text="${message}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill"></i> <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
 
-<form th:action="@{/ui/books}" method="get" style="margin-bottom: 16px;">
-    <label>
-        Название:
-        <input type="text" name="title" th:value="${title}" />
-    </label>
-    <label style="margin-left: 8px;">
-        Автор:
-        <input type="text" name="author" th:value="${author}" />
-    </label>
-    <label style="margin-left: 8px;">
-        Жанр:
-        <input type="text" name="genre" th:value="${genre}" />
-    </label>
-    <button type="submit" style="margin-left: 8px;">Фильтровать</button>
-    <a th:href="@{/ui/books}" style="margin-left: 8px;">Сбросить</a>
-</form>
-
-<table>
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>Название</th>
-        <th>ISBN</th>
-        <th>Аннотация</th>
-        <th>Язык</th>
-        <th>Год издания</th>
-        <th>Автор</th>
-        <th>Жанр</th>
-        <th>Доступно</th>
-        <th>Действие</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="book : ${books}">
-        <td th:text="${book.id}"></td>
-
-        <td th:text="${book.title}"></td>
-
-        <td th:text="${book.isbn}"></td>
-
-        <td th:text="${book.description}"></td>
-
-        <td th:text="${book.language}"></td>
-
-        <td th:text="${book.publicationYear}"></td>
-
-        <td th:text="${book.author != null ? book.author.fullName : 'Не указан'}"></td>
-
-        <td th:text="${book.genre != null ? book.genre.name : 'Не указан'}"></td>
-
-        <td th:text="${book.availableCount}"></td>
-
-        <td>
-            <form th:action="@{/ui/books/{id}/book(id=${book.id})}" method="post">
-                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
-                <button type="submit" th:disabled="${book.availableCount <= 0}">Забронировать</button>
+    <!-- Форма фильтрации (горизонтальная, адаптивная) -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form th:action="@{/ui/books}" method="get" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label">Название</label>
+                    <input type="text" class="form-control" name="title" th:value="${title}" placeholder="Введите название">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Автор</label>
+                    <input type="text" class="form-control" name="author" th:value="${author}" placeholder="Фамилия или имя">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Жанр</label>
+                    <input type="text" class="form-control" name="genre" th:value="${genre}" placeholder="Например, фантастика">
+                </div>
+                <div class="col-md-3">
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary flex-grow-1">
+                            <i class="bi bi-funnel"></i> Фильтровать
+                        </button>
+                        <a th:href="@{/ui/books}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle"></i> Сбросить
+                        </a>
+                    </div>
+                </div>
             </form>
-        </td>
-    </tr>
-    </tbody>
-</table>
+        </div>
+    </div>
+
+    <!-- Таблица с книгами (адаптивная, с горизонтальной прокруткой на мобильных) -->
+    <div class="card shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle mb-0">
+                    <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Название</th>
+                        <th>ISBN</th>
+                        <th>Аннотация</th>
+                        <th>Язык</th>
+                        <th>Год</th>
+                        <th>Автор</th>
+                        <th>Жанр</th>
+                        <th>Доступно</th>
+                        <th>Действие</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="book : ${books}">
+                        <td th:text="${book.id}" class="fw-bold"></td>
+                        <td th:text="${book.title}"></td>
+                        <td><code th:text="${book.isbn}"></code></td>
+                        <td th:text="${book.description}" style="max-width: 250px;" class="text-truncate"></td>
+                        <td th:text="${book.language}"></td>
+                        <td th:text="${book.publicationYear}"></td>
+                        <td th:text="${book.author != null ? book.author.fullName : 'Не указан'}"></td>
+                        <td th:text="${book.genre != null ? book.genre.name : 'Не указан'}"></td>
+                        <td>
+                            <span th:class="${book.availableCount > 0 ? 'badge bg-success' : 'badge bg-secondary'}"
+                                  th:text="${book.availableCount}"></span>
+                        </td>
+                        <td>
+                            <form th:action="@{/ui/books/{id}/book(id=${book.id})}" method="post" class="mb-0">
+                                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                                <button type="submit" class="btn btn-sm btn-warning"
+                                        th:disabled="${book.availableCount <= 0}"
+                                        th:classappend="${book.availableCount <= 0} ? 'btn-secondary' : 'btn-warning'">
+                                    <i class="bi bi-bookmark-check"></i> Забронировать
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(books)}">
+                        <td colspan="10" class="text-center text-muted py-4">
+                            <i class="bi bi-emoji-frown"></i> Книги не найдены
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap JS (для закрытия alert) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
