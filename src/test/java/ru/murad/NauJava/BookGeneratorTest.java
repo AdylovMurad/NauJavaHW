@@ -57,7 +57,8 @@ public abstract class BookGeneratorTest {
             admin.setPassword(passwordEncoder.encode("admin"));
             admin.setFirstName("Admin");
             admin.setLastName("System");
-            admin.setRole(UserRole.ADMIN);
+            admin.setRole(UserRole.ROLE_ADMIN);
+            admin.setEmail("admin@test.com");
             userRepository.save(admin);
         }
     }

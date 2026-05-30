@@ -1,6 +1,5 @@
 package ru.murad.NauJava;
 
-import io.github.bonigarcia.wdm.WebDriverManager;
 import org.junit.jupiter.api.*;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -9,10 +8,12 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
 import java.time.Duration;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@EnabledIfSystemProperty(named = "ui.tests", matches = "true")
 public class LoginUiTest extends BookGeneratorTest {
 
     @LocalServerPort
