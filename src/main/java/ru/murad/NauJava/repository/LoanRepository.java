@@ -19,6 +19,8 @@ public interface LoanRepository extends org.springframework.data.repository.Crud
 
     List<Loan> findByStatusAndReturnDeadlineBefore(LoanStatus status, LocalDateTime deadline);
 
+    List<Loan> findByStatusAndReturnDeadlineBetween(LoanStatus status, LocalDateTime start, LocalDateTime end);
+
     Optional<Loan> findByBookIdAndUserIdAndStatus(Long bookId, Long userId, LoanStatus status);
 
     long countByStatus(LoanStatus status);

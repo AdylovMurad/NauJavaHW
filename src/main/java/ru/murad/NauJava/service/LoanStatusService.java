@@ -14,9 +14,11 @@ import java.util.List;
 public class LoanStatusService {
 
     private final LoanRepository loanRepository;
+    private final NotificationService notificationService;
 
-    public LoanStatusService(LoanRepository loanRepository) {
+    public LoanStatusService(LoanRepository loanRepository, NotificationService notificationService) {
         this.loanRepository = loanRepository;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -34,11 +36,28 @@ public class LoanStatusService {
             loan.setStatus(LoanStatus.OVERDUE);
         }
         loanRepository.saveAll(overdueCandidates);
+        for (Loan loan : overdueCandidates) {
+            notificationService.notifyOverdue(loan);
+        }
         return overdueCandidates.size();
     }
 
     @Scheduled(cron = "0 0 * * * *")
     public void refreshOverdueHourly() {
         refreshOverdue();
+    }
+
+    @Scheduled(cron = "0 0 9 * * *")
+    public void notifyDueSoonDaily() {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime soon = now.plusDays(2);
+        List<Loan> dueSoon = loanRepository.findByStatusAndReturnDeadlineBetween(
+                LoanStatus.BORROWED,
+                now,
+                soon
+        );
+        for (Loan loan : dueSoon) {
+            notificationService.notifyDueSoon(loan);
+        }
     }
 }
