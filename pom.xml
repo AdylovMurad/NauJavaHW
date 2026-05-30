@@ -11,8 +11,8 @@
 	<groupId>ru.murad</groupId>
 	<artifactId>NauJava</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>NauJava</name>
-	<description>Project for Naumen Java course</description>
+	<name>SmartLibrary</name>
+	<description>Приложение библиотеки</description>
 	<url/>
 	<licenses>
 		<license/>
