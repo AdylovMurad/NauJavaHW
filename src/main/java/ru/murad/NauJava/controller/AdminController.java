@@ -1,5 +1,7 @@
 package ru.murad.NauJava.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,6 +34,8 @@ import java.util.List;
 @Controller
 @RequestMapping("/admin")
 public class AdminController {
+
+    private static final Logger logger = LoggerFactory.getLogger(AdminController.class);
 
     private final BookRepository bookRepository;
     private final AuthorRepository authorRepository;
@@ -101,6 +105,7 @@ public class AdminController {
         }
 
         bookRepository.save(book);
+        logger.info("Admin created book id={} title='{}'", book.getId(), book.getTitle());
         return "redirect:/admin/books";
     }
 
@@ -139,12 +144,14 @@ public class AdminController {
         }
 
         bookRepository.save(book);
+        logger.info("Admin updated book id={} title='{}'", book.getId(), book.getTitle());
         return "redirect:/admin/books";
     }
 
     @PostMapping("/books/{id}/delete")
     public String deleteBook(@PathVariable Long id) {
         bookRepository.deleteById(id);
+        logger.info("Admin deleted book id={}", id);
         return "redirect:/admin/books";
     }
 
@@ -165,12 +172,14 @@ public class AdminController {
         author.setBirthDate(birthDate);
         author.setDateOfDeath(dateOfDeath);
         authorRepository.save(author);
+        logger.info("Admin created author id={} name='{}'", author.getId(), author.getFullName());
         return "redirect:/admin/authors";
     }
 
     @PostMapping("/authors/{id}/delete")
     public String deleteAuthor(@PathVariable Long id) {
         authorService.deleteAuthorWithBooks(id);
+        logger.info("Admin deleted author id={}", id);
         return "redirect:/admin/authors";
     }
 
@@ -189,12 +198,14 @@ public class AdminController {
         genre.setDescription(description);
         genre.setPopularityIndex(popularityIndex);
         genreRepository.save(genre);
+        logger.info("Admin created genre id={} name='{}'", genre.getId(), genre.getName());
         return "redirect:/admin/genres";
     }
 
     @PostMapping("/genres/{id}/delete")
     public String deleteGenre(@PathVariable Long id) {
         genreRepository.deleteById(id);
+        logger.info("Admin deleted genre id={}", id);
         return "redirect:/admin/genres";
     }
 
@@ -226,6 +237,7 @@ public class AdminController {
             loan.setStatus(LoanStatus.BORROWED);
             loan.setLoanDate(LocalDateTime.now());
             loanRepository.save(loan);
+            logger.info("Admin issued loan id={} bookId={} userId={}", loan.getId(), loan.getBook().getId(), loan.getUser().getId());
         }
 
         return "redirect:/admin/loans";
@@ -245,6 +257,7 @@ public class AdminController {
                 book.setAvailableCount(book.getAvailableCount() + 1);
                 bookRepository.save(book);
             }
+            logger.info("Admin returned loan id={} bookId={} userId={}", loan.getId(), loan.getBook().getId(), loan.getUser().getId());
         }
 
         return "redirect:/admin/loans";
@@ -265,6 +278,7 @@ public class AdminController {
         model.addAttribute("reportId", id);
         model.addAttribute("reportStatus", report != null ? report.getStatus() : null);
         addStats(model);
+        logger.info("Admin generated report id={}", id);
         return "admin/stats";
     }
 

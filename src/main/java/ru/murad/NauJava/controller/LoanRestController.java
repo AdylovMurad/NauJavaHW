@@ -1,5 +1,7 @@
 package ru.murad.NauJava.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,6 +22,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/loans")
 public class LoanRestController {
+
+    private static final Logger logger = LoggerFactory.getLogger(LoanRestController.class);
 
     private final BookRepository bookRepository;
     private final LoanRepository loanRepository;
@@ -84,6 +88,7 @@ public class LoanRestController {
         loan.setStatus(LoanStatus.BORROWED);
         loan.setLoanDate(LocalDateTime.now());
         loanRepository.save(loan);
+        logger.info("REST admin issued loan bookId={} userId={}", bookId, userId);
 
         return ResponseEntity.ok("Книга успешно выдана читателю!");
     }
@@ -101,11 +106,14 @@ public class LoanRestController {
         book.setAvailableCount(book.getAvailableCount() + 1);
         bookRepository.save(book);
 
+        logger.info("REST admin returned loan bookId={} userId={}", bookId, userId);
+
         return ResponseEntity.ok("Книга успешно возвращена в библиотеку. Баланс обновлен!");
     }
 
     @GetMapping("/admin/statistics")
     public ResponseEntity<Map<String, Long>> getStatistics() {
+        logger.info("REST admin requested loan statistics");
         Map<String, Long> stats = new HashMap<>();
         stats.clear();
         stats.put("total_booked", loanRepository.countByStatus(LoanStatus.BOOKED));

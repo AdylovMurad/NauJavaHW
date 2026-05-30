@@ -1,5 +1,7 @@
 package ru.murad.NauJava.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.murad.NauJava.controller.dto.UserRequest;
@@ -15,6 +17,8 @@ import java.util.stream.StreamSupport;
 @RestController
 @RequestMapping("/api/users")
 public class UserRestController {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserRestController.class);
 
     private final UserRepository userRepository;
     private final UserService userService;
@@ -53,6 +57,7 @@ public class UserRestController {
             user.setRole(ru.murad.NauJava.entity.UserRole.ROLE_USER);
         }
         userService.saveUser(user);
+        logger.info("REST created user id={} username='{}' role={}", user.getId(), user.getUsername(), user.getRole());
         return ResponseEntity.ok(UserResponse.from(user));
     }
 
@@ -75,6 +80,7 @@ public class UserRestController {
             userRepository.save(user);
         }
 
+        logger.info("REST updated user id={} username='{}' role={}", user.getId(), user.getUsername(), user.getRole());
         return ResponseEntity.ok(UserResponse.from(user));
     }
 
@@ -84,6 +90,7 @@ public class UserRestController {
             throw new ResourceNotFoundException("Пользователь не найден");
         }
         userRepository.deleteById(id);
+        logger.info("REST deleted user id={}", id);
         return ResponseEntity.noContent().build();
     }
 }

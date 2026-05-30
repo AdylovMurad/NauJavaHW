@@ -1,5 +1,7 @@
 package ru.murad.NauJava.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.murad.NauJava.controller.dto.BookRequest;
@@ -17,6 +19,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/books")
 public class BookController {
+
+    private static final Logger logger = LoggerFactory.getLogger(BookController.class);
 
     private final BookRepository bookRepository;
     private final BookService bookService;
@@ -73,7 +77,9 @@ public class BookController {
     public ResponseEntity<Book> createBook(@RequestBody BookRequest request) {
         Book book = new Book();
         applyBookRequest(book, request);
-        return ResponseEntity.ok(bookRepository.save(book));
+        Book saved = bookRepository.save(book);
+        logger.info("REST created book id={} title='{}'", saved.getId(), saved.getTitle());
+        return ResponseEntity.ok(saved);
     }
 
     @PutMapping("/{id}")
@@ -81,7 +87,9 @@ public class BookController {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Книга не найдена"));
         applyBookRequest(book, request);
-        return ResponseEntity.ok(bookRepository.save(book));
+        Book saved = bookRepository.save(book);
+        logger.info("REST updated book id={} title='{}'", saved.getId(), saved.getTitle());
+        return ResponseEntity.ok(saved);
     }
 
     @DeleteMapping("/{id}")
@@ -90,6 +98,7 @@ public class BookController {
             throw new ResourceNotFoundException("Книга не найдена");
         }
         bookRepository.deleteById(id);
+        logger.info("REST deleted book id={}", id);
         return ResponseEntity.noContent().build();
     }
 
@@ -100,6 +109,7 @@ public class BookController {
             @RequestParam int availableCount) {
 
         bookService.createBook(null, title, authorName);
+        logger.info("REST admin created book title='{}'", title);
         return ResponseEntity.ok("Книга успешно добавлена!");
     }
 

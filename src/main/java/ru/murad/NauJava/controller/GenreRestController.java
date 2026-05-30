@@ -1,5 +1,7 @@
 package ru.murad.NauJava.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.murad.NauJava.controller.dto.GenreRequest;
@@ -12,6 +14,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/genres")
 public class GenreRestController {
+
+    private static final Logger logger = LoggerFactory.getLogger(GenreRestController.class);
 
     private final GenreRepository genreRepository;
 
@@ -37,7 +41,9 @@ public class GenreRestController {
         genre.setName(request.getName());
         genre.setDescription(request.getDescription());
         genre.setPopularityIndex(request.getPopularityIndex());
-        return ResponseEntity.ok(genreRepository.save(genre));
+        Genre saved = genreRepository.save(genre);
+        logger.info("REST created genre id={} name='{}'", saved.getId(), saved.getName());
+        return ResponseEntity.ok(saved);
     }
 
     @PutMapping("/{id}")
@@ -48,7 +54,9 @@ public class GenreRestController {
         genre.setName(request.getName());
         genre.setDescription(request.getDescription());
         genre.setPopularityIndex(request.getPopularityIndex());
-        return ResponseEntity.ok(genreRepository.save(genre));
+        Genre saved = genreRepository.save(genre);
+        logger.info("REST updated genre id={} name='{}'", saved.getId(), saved.getName());
+        return ResponseEntity.ok(saved);
     }
 
     @DeleteMapping("/{id}")
@@ -57,6 +65,7 @@ public class GenreRestController {
             throw new ResourceNotFoundException("Жанр не найден");
         }
         genreRepository.deleteById(id);
+        logger.info("REST deleted genre id={}", id);
         return ResponseEntity.noContent().build();
     }
 }

@@ -1,5 +1,7 @@
 package ru.murad.NauJava.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.murad.NauJava.controller.dto.AuthorRequest;
@@ -14,6 +16,8 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/authors")
 public class AuthorRestController {
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthorRestController.class);
 
     private final AuthorRepository authorRepository;
     private final AuthorService authorService;
@@ -44,7 +48,9 @@ public class AuthorRestController {
         author.setBiography(request.getBiography());
         author.setBirthDate(request.getBirthDate());
         author.setDateOfDeath(request.getDateOfDeath());
-        return ResponseEntity.ok(authorRepository.save(author));
+        Author saved = authorRepository.save(author);
+        logger.info("REST created author id={} name='{}'", saved.getId(), saved.getFullName());
+        return ResponseEntity.ok(saved);
     }
 
     @PutMapping("/{id}")
@@ -56,7 +62,9 @@ public class AuthorRestController {
         author.setBiography(request.getBiography());
         author.setBirthDate(request.getBirthDate());
         author.setDateOfDeath(request.getDateOfDeath());
-        return ResponseEntity.ok(authorRepository.save(author));
+        Author saved = authorRepository.save(author);
+        logger.info("REST updated author id={} name='{}'", saved.getId(), saved.getFullName());
+        return ResponseEntity.ok(saved);
     }
 
     @DeleteMapping("/{id}")
@@ -65,6 +73,7 @@ public class AuthorRestController {
             throw new ResourceNotFoundException("Автор не найден");
         }
         authorService.deleteAuthorWithBooks(id);
+        logger.info("REST deleted author id={}", id);
         return ResponseEntity.noContent().build();
     }
 }
