@@ -6,11 +6,19 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import ru.murad.NauJava.entity.Loan;
 
+/**
+ * Сервис асинхронной имитации отправки уведомлений читателям.
+ */
 @Service
 public class NotificationService {
 
     private static final Logger logger = LoggerFactory.getLogger(NotificationService.class);
 
+    /**
+     * Асинхронно логирует/имитирует отправку уведомления о скором наступлении дедлайна возврата книги.
+     *
+     * @param loan запись выдачи, срок которой истекает
+     */
     @Async
     public void notifyDueSoon(Loan loan) {
         logger.info("Notify due soon: loanId={} userId={} bookId={} deadline={}",
@@ -20,6 +28,11 @@ public class NotificationService {
                 loan.getReturnDeadline());
     }
 
+    /**
+     * Асинхронно логирует/имитирует отправку уведомления о просроченном возврате книги.
+     *
+     * @param loan запись просроченной выдачи
+     */
     @Async
     public void notifyOverdue(Loan loan) {
         logger.info("Notify overdue: loanId={} userId={} bookId={} deadline={}",

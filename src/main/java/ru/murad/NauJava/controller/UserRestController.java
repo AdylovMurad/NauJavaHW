@@ -14,6 +14,9 @@ import ru.murad.NauJava.repository.UserRepository;
 import java.util.List;
 import java.util.stream.StreamSupport;
 
+/**
+ * REST-контроллер для просмотра и администрирования пользователей через API.
+ */
 @RestController
 @RequestMapping("/api/users")
 public class UserRestController {
@@ -23,11 +26,22 @@ public class UserRestController {
     private final UserRepository userRepository;
     private final UserService userService;
 
+    /**
+     * Конструктор контроллера UserRestController.
+     *
+     * @param userRepository репозиторий пользователей
+     * @param userService    сервис управления пользователями
+     */
     public UserRestController(UserRepository userRepository, UserService userService) {
         this.userRepository = userRepository;
         this.userService = userService;
     }
 
+    /**
+     * Возвращает список всех зарегистрированных пользователей.
+     *
+     * @return ResponseEntity со списком DTO-ответов пользователей
+     */
     @GetMapping
     public ResponseEntity<List<UserResponse>> getAll() {
         List<UserResponse> users = StreamSupport.stream(userRepository.findAll().spliterator(), false)
@@ -36,6 +50,12 @@ public class UserRestController {
         return ResponseEntity.ok(users);
     }
 
+    /**
+     * Находит пользователя по его идентификатору.
+     *
+     * @param id идентификатор пользователя
+     * @return ResponseEntity со сведениями о пользователе
+     */
     @GetMapping("/{id}")
     public ResponseEntity<UserResponse> getById(@PathVariable Long id) {
         User user = userRepository.findById(id)
@@ -43,6 +63,12 @@ public class UserRestController {
         return ResponseEntity.ok(UserResponse.from(user));
     }
 
+    /**
+     * Создает нового пользователя через API.
+     *
+     * @param request DTO с параметрами нового пользователя
+     * @return ResponseEntity с созданным пользователем
+     */
     @PostMapping
     public ResponseEntity<UserResponse> create(@RequestBody UserRequest request) {
         User user = new User();
@@ -61,6 +87,13 @@ public class UserRestController {
         return ResponseEntity.ok(UserResponse.from(user));
     }
 
+    /**
+     * Обновляет профиль пользователя по его идентификатору.
+     *
+     * @param id      идентификатор пользователя
+     * @param request DTO с измененными параметрами пользователя
+     * @return ResponseEntity с обновленным профилем
+     */
     @PutMapping("/{id}")
     public ResponseEntity<UserResponse> update(@PathVariable Long id, @RequestBody UserRequest request) {
         User user = userRepository.findById(id)
@@ -84,6 +117,12 @@ public class UserRestController {
         return ResponseEntity.ok(UserResponse.from(user));
     }
 
+    /**
+     * Удаляет пользователя из системы.
+     *
+     * @param id идентификатор пользователя
+     * @return ResponseEntity без тела (no content)
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         if (!userRepository.existsById(id)) {

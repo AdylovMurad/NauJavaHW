@@ -11,12 +11,21 @@ import ru.murad.NauJava.exception.ResourceNotFoundException;
 
 import java.util.List;
 
+/**
+ * Реализация сервиса управления авторами книг.
+ */
 @Service
 public class AuthorServiceImpl implements AuthorService {
 
     private final AuthorRepository authorRepository;
     private final BookRepository bookRepository;
 
+    /**
+     * Конструктор класса AuthorServiceImpl.
+     *
+     * @param authorRepository репозиторий авторов
+     * @param bookRepository   репозиторий книг
+     */
     @Autowired
     public AuthorServiceImpl(AuthorRepository authorRepository,
                              BookRepository bookRepository) {

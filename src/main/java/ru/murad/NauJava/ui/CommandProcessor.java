@@ -8,15 +8,28 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Обработчик текстовых команд консольного интерфейса управления каталогом книг.
+ */
 @Component
 public class CommandProcessor {
     private final BookService bookService;
 
+    /**
+     * Конструктор CommandProcessor.
+     *
+     * @param bookService сервис управления книгами
+     */
     @Autowired
     public CommandProcessor(BookService bookService) {
         this.bookService = bookService;
     }
 
+    /**
+     * Разбирает введенную текстовую строку на аргументы и выполняет соответствующую команду (create, read, update, list, delete).
+     *
+     * @param input введенная пользователем команда
+     */
     public void processCommand(String input) {
         List<String> args = new ArrayList<>();
         Matcher m = Pattern.compile("([^\"]\\S*|\".+?\")\\s*").matcher(input);

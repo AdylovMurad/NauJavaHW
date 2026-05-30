@@ -13,6 +13,9 @@ import ru.murad.NauJava.service.AuthorService;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * REST-контроллер для управления авторами книг через API.
+ */
 @RestController
 @RequestMapping("/api/authors")
 public class AuthorRestController {
@@ -22,11 +25,22 @@ public class AuthorRestController {
     private final AuthorRepository authorRepository;
     private final AuthorService authorService;
 
+    /**
+     * Конструктор контроллера AuthorRestController.
+     *
+     * @param authorRepository репозиторий авторов
+     * @param authorService    сервис управления авторами
+     */
     public AuthorRestController(AuthorRepository authorRepository, AuthorService authorService) {
         this.authorRepository = authorRepository;
         this.authorService = authorService;
     }
 
+    /**
+     * Возвращает список всех зарегистрированных авторов.
+     *
+     * @return ResponseEntity со списком авторов
+     */
     @GetMapping
     public ResponseEntity<List<Author>> getAll() {
         List<Author> authors = new ArrayList<>();
@@ -34,6 +48,12 @@ public class AuthorRestController {
         return ResponseEntity.ok(authors);
     }
 
+    /**
+     * Возвращает автора по его идентификатору.
+     *
+     * @param id идентификатор автора
+     * @return ResponseEntity с найденным автором
+     */
     @GetMapping("/{id}")
     public ResponseEntity<Author> getById(@PathVariable Long id) {
         Author author = authorRepository.findById(id)
@@ -41,6 +61,12 @@ public class AuthorRestController {
         return ResponseEntity.ok(author);
     }
 
+    /**
+     * Создает новую запись автора.
+     *
+     * @param request DTO с параметрами нового автора
+     * @return ResponseEntity с созданным автором
+     */
     @PostMapping
     public ResponseEntity<Author> create(@RequestBody AuthorRequest request) {
         Author author = new Author();
@@ -53,6 +79,13 @@ public class AuthorRestController {
         return ResponseEntity.ok(saved);
     }
 
+    /**
+     * Обновляет существующую запись автора.
+     *
+     * @param id      идентификатор автора
+     * @param request DTO с обновленными данными автора
+     * @return ResponseEntity с обновленным автором
+     */
     @PutMapping("/{id}")
     public ResponseEntity<Author> update(@PathVariable Long id, @RequestBody AuthorRequest request) {
         Author author = authorRepository.findById(id)
@@ -67,6 +100,12 @@ public class AuthorRestController {
         return ResponseEntity.ok(saved);
     }
 
+    /**
+     * Удаляет автора и связанные с ним книги.
+     *
+     * @param id идентификатор автора
+     * @return ResponseEntity без тела (no content)
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         if (!authorRepository.existsById(id)) {

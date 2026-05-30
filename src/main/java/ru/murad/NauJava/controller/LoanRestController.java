@@ -19,6 +19,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * REST-контроллер для управления процессами бронирования, выдачи и возврата книг.
+ */
 @RestController
 @RequestMapping("/api/loans")
 public class LoanRestController {
@@ -29,12 +32,26 @@ public class LoanRestController {
     private final LoanRepository loanRepository;
     private final UserRepository userRepository;
 
+    /**
+     * Конструктор контроллера LoanRestController.
+     *
+     * @param bookRepository репозиторий книг
+     * @param loanRepository репозиторий бронирований/выдач
+     * @param userRepository репозиторий пользователей
+     */
     public LoanRestController(BookRepository bookRepository, LoanRepository loanRepository, UserRepository userRepository) {
         this.bookRepository = bookRepository;
         this.loanRepository = loanRepository;
         this.userRepository = userRepository;
     }
 
+    /**
+     * Осуществляет бронирование книги авторизованным пользователем.
+     *
+     * @param bookId      идентификатор бронируемой книги
+     * @param userDetails данные авторизованного пользователя
+     * @return ResponseEntity с текстовым результатом операции
+     */
     @PostMapping("/book/{bookId}")
     public ResponseEntity<String> bookBook(@PathVariable Long bookId, @AuthenticationPrincipal UserDetails userDetails) {
         Book book = bookRepository.findById(bookId)
@@ -72,6 +89,12 @@ public class LoanRestController {
         return ResponseEntity.ok("Книга '" + book.getTitle() + "' успешно забронирована!");
     }
 
+    /**
+     * Возвращает список всех броней и выдач авторизованного пользователя.
+     *
+     * @param userDetails данные авторизованного пользователя
+     * @return ResponseEntity со списком броней/выдач
+     */
     @GetMapping("/my")
     public ResponseEntity<List<Loan>> getMyLoans(@AuthenticationPrincipal UserDetails userDetails) {
         User user = userRepository.findByUsername(userDetails.getUsername())
@@ -80,6 +103,13 @@ public class LoanRestController {
         return ResponseEntity.ok(loanRepository.findByUser(user));
     }
 
+    /**
+     * Административный эндпоинт для перевода книги из статуса «Забронировано» в статус «Выдано» (BORROWED).
+     *
+     * @param bookId идентификатор книги
+     * @param userId идентификатор читателя
+     * @return ResponseEntity с подтверждением выдачи
+     */
     @PostMapping("/admin/issue")
     public ResponseEntity<String> issueBook(@RequestParam Long bookId, @RequestParam Long userId) {
         Loan loan = loanRepository.findByBookIdAndUserIdAndStatus(bookId, userId, LoanStatus.BOOKED)
@@ -93,6 +123,13 @@ public class LoanRestController {
         return ResponseEntity.ok("Книга успешно выдана читателю!");
     }
 
+    /**
+     * Административный эндпоинт для фиксации возврата книги в библиотеку (статус RETURNED).
+     *
+     * @param bookId идентификатор книги
+     * @param userId идентификатор читателя
+     * @return ResponseEntity с подтверждением возврата
+     */
     @PostMapping("/admin/return")
     public ResponseEntity<String> returnBook(@RequestParam Long bookId, @RequestParam Long userId) {
         Loan loan = loanRepository.findByBookIdAndUserIdAndStatus(bookId, userId, LoanStatus.BORROWED)
@@ -111,6 +148,11 @@ public class LoanRestController {
         return ResponseEntity.ok("Книга успешно возвращена в библиотеку. Баланс обновлен!");
     }
 
+    /**
+     * Административный эндпоинт для получения числовых показателей по типам выдач.
+     *
+     * @return ResponseEntity со словарем статистических показателей
+     */
     @GetMapping("/admin/statistics")
     public ResponseEntity<Map<String, Long>> getStatistics() {
         logger.info("REST admin requested loan statistics");
@@ -124,6 +166,11 @@ public class LoanRestController {
         return ResponseEntity.ok(stats);
     }
 
+    /**
+     * Административный эндпоинт для просмотра всех записей о выдачах и бронированиях.
+     *
+     * @return ResponseEntity со списком всех транзакций
+     */
     @GetMapping("/admin")
     public ResponseEntity<List<Loan>> getAllLoans() {
         List<Loan> loans = new java.util.ArrayList<>();
@@ -131,6 +178,12 @@ public class LoanRestController {
         return ResponseEntity.ok(loans);
     }
 
+    /**
+     * Административный эндпоинт для поиска конкретной выдачи/брони по её ID.
+     *
+     * @param id идентификатор записи о выдаче
+     * @return ResponseEntity с найденной записью
+     */
     @GetMapping("/admin/{id}")
     public ResponseEntity<Loan> getLoanById(@PathVariable Long id) {
         Loan loan = loanRepository.findById(id)
@@ -138,6 +191,11 @@ public class LoanRestController {
         return ResponseEntity.ok(loan);
     }
 
+    /**
+     * Административный эндпоинт для просмотра списка всех просроченных книг.
+     *
+     * @return ResponseEntity со списком просроченных выдач
+     */
     @GetMapping("/admin/overdue")
     public ResponseEntity<List<Loan>> getOverdueLoans() {
         return ResponseEntity.ok(loanRepository.findByStatus(LoanStatus.OVERDUE));

@@ -11,16 +11,30 @@ import ru.murad.NauJava.entity.User;
 import ru.murad.NauJava.exception.ResourceNotFoundException;
 import ru.murad.NauJava.repository.UserRepository;
 
+/**
+ * REST-контроллер для просмотра личного профиля текущего авторизованного пользователя.
+ */
 @RestController
 @RequestMapping("/api/profile")
 public class ProfileRestController {
 
     private final UserRepository userRepository;
 
+    /**
+     * Конструктор контроллера ProfileRestController.
+     *
+     * @param userRepository репозиторий пользователей
+     */
     public ProfileRestController(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
+    /**
+     * Возвращает профиль текущего авторизованного пользователя.
+     *
+     * @param userDetails данные текущего сеанса пользователя
+     * @return ResponseEntity со сведениями о текущем пользователе
+     */
     @GetMapping
     public ResponseEntity<UserResponse> getProfile(@AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails == null) {

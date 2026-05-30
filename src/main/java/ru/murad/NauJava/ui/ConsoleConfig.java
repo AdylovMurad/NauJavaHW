@@ -5,13 +5,20 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Configuration;
 import java.util.Scanner;
 
+/**
+ * Конфигурация для инициализации и запуска интерактивного консольного интерфейса в фоновом потоке.
+ */
 @Configuration
 public class ConsoleConfig {
 
     @Autowired
     private CommandProcessor commandProcessor;
 
-    // @Bean
+    /**
+     * Возвращает runner для сканирования команд из стандартного ввода System.in.
+     *
+     * @return CommandLineRunner для запуска сканера команд
+     */
     public CommandLineRunner commandScanner() {
         return args -> {
             Thread consoleThread = new Thread(() -> {

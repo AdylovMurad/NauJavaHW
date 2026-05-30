@@ -11,11 +11,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Реализация сервиса управления книжным фондом.
+ */
 @Service
 public class BookServiceImpl implements BookService {
     private final BookRepository bookRepository;
     private final AuthorRepository authorRepository;
 
+    /**
+     * Конструктор для внедрения зависимостей репозиториев.
+     *
+     * @param bookRepository   репозиторий книг
+     * @param authorRepository репозиторий авторов
+     */
     @Autowired
     public BookServiceImpl(BookRepository bookRepository, AuthorRepository authorRepository) {
         this.bookRepository = bookRepository;

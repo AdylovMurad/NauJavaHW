@@ -19,6 +19,9 @@ import ru.murad.NauJava.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Контроллер для отображения страниц пользовательского интерфейса (UI) каталога книг и личного кабинета.
+ */
 @Controller
 public class BookViewController {
 
@@ -26,12 +29,28 @@ public class BookViewController {
     private final LoanRepository loanRepository;
     private final UserRepository userRepository;
 
+    /**
+     * Конструктор контроллера BookViewController.
+     *
+     * @param bookRepository  репозиторий книг
+     * @param loanRepository  репозиторий выдач/бронирований
+     * @param userRepository  репозиторий пользователей
+     */
     public BookViewController(BookRepository bookRepository, LoanRepository loanRepository, UserRepository userRepository) {
         this.bookRepository = bookRepository;
         this.loanRepository = loanRepository;
         this.userRepository = userRepository;
     }
 
+    /**
+     * Отображает страницу со списком книг с возможностью фильтрации по названию, автору и жанру.
+     *
+     * @param model  объект модели Thymeleaf для передачи данных на HTML-страницу
+     * @param title  название книги для фильтрации (необязательный параметр)
+     * @param author имя автора для фильтрации (необязательный параметр)
+     * @param genre  название жанра для фильтрации (необязательный параметр)
+     * @return имя Thymeleaf-шаблона "books"
+     */
     @GetMapping("/ui/books")
     public String showAllBooks(Model model,
                                @RequestParam(required = false) String title,
@@ -49,6 +68,14 @@ public class BookViewController {
         return "books";
     }
 
+    /**
+     * Обрабатывает POST-запрос на бронирование выбранной книги из каталога.
+     *
+     * @param id          идентификатор бронируемой книги
+     * @param userDetails данные текущего авторизованного пользователя
+     * @param model       объект модели Thymeleaf
+     * @return перенаправление на страницу каталога книг
+     */
     @PostMapping("/ui/books/{id}/book")
     public String bookFromCatalog(@PathVariable Long id,
                                   @AuthenticationPrincipal UserDetails userDetails,
@@ -95,6 +122,13 @@ public class BookViewController {
         return showAllBooks(model, null, null, null);
     }
 
+    /**
+     * Отображает страницу личного кабинета пользователя со списком его активных броней и выдач.
+     *
+     * @param userDetails данные авторизованного пользователя
+     * @param model       объект модели Thymeleaf
+     * @return имя Thymeleaf-шаблона "profile" или перенаправление на "/login"
+     */
     @GetMapping("/ui/profile")
     public String showProfile(@AuthenticationPrincipal UserDetails userDetails, Model model) {
         if (userDetails == null) {

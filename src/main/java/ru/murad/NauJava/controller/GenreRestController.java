@@ -11,6 +11,9 @@ import ru.murad.NauJava.repository.GenreRepository;
 
 import java.util.List;
 
+/**
+ * REST-контроллер для управления жанрами книг через API.
+ */
 @RestController
 @RequestMapping("/api/genres")
 public class GenreRestController {
@@ -19,15 +22,31 @@ public class GenreRestController {
 
     private final GenreRepository genreRepository;
 
+    /**
+     * Конструктор контроллера GenreRestController.
+     *
+     * @param genreRepository репозиторий жанров
+     */
     public GenreRestController(GenreRepository genreRepository) {
         this.genreRepository = genreRepository;
     }
 
+    /**
+     * Возвращает список всех зарегистрированных жанров.
+     *
+     * @return ResponseEntity со списком жанров
+     */
     @GetMapping
     public ResponseEntity<List<Genre>> getAll() {
         return ResponseEntity.ok(genreRepository.findAll());
     }
 
+    /**
+     * Возвращает жанр по его идентификатору.
+     *
+     * @param id идентификатор жанра
+     * @return ResponseEntity с найденным жанром
+     */
     @GetMapping("/{id}")
     public ResponseEntity<Genre> getById(@PathVariable Long id) {
         Genre genre = genreRepository.findById(id)
@@ -35,6 +54,12 @@ public class GenreRestController {
         return ResponseEntity.ok(genre);
     }
 
+    /**
+     * Создает новый литературный жанр.
+     *
+     * @param request DTO с параметрами нового жанра
+     * @return ResponseEntity с созданным жанром
+     */
     @PostMapping
     public ResponseEntity<Genre> create(@RequestBody GenreRequest request) {
         Genre genre = new Genre();
@@ -46,6 +71,13 @@ public class GenreRestController {
         return ResponseEntity.ok(saved);
     }
 
+    /**
+     * Обновляет параметры существующего жанра.
+     *
+     * @param id      идентификатор жанра
+     * @param request DTO с обновленными данными
+     * @return ResponseEntity с обновленным жанром
+     */
     @PutMapping("/{id}")
     public ResponseEntity<Genre> update(@PathVariable Long id, @RequestBody GenreRequest request) {
         Genre genre = genreRepository.findById(id)
@@ -59,6 +91,12 @@ public class GenreRestController {
         return ResponseEntity.ok(saved);
     }
 
+    /**
+     * Удаляет жанр по его идентификатору.
+     *
+     * @param id идентификатор жанра
+     * @return ResponseEntity без тела (no content)
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         if (!genreRepository.existsById(id)) {

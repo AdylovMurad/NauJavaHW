@@ -15,6 +15,9 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 
+/**
+ * Сервис для асинхронного формирования отчетов статистики.
+ */
 @Service
 public class ReportService {
 
@@ -22,6 +25,13 @@ public class ReportService {
     private final UserRepository userRepository;
     private final BookRepository bookRepository;
 
+    /**
+     * Конструктор класса ReportService.
+     *
+     * @param reportRepository репозиторий отчетов
+     * @param userRepository   репозиторий пользователей
+     * @param bookRepository   репозиторий книг
+     */
     @Autowired
     public ReportService(ReportRepository reportRepository,
                          UserRepository userRepository,
@@ -31,12 +41,23 @@ public class ReportService {
         this.bookRepository = bookRepository;
     }
 
+    /**
+     * Создает пустую запись отчета со статусом CREATED.
+     *
+     * @return уникальный идентификатор созданного отчета
+     */
     public Long createReport() {
         Report report = new Report(ReportStatus.CREATED);
         report = reportRepository.save(report);
         return report.getId();
     }
 
+    /**
+     * Возвращает содержимое отчета или статусную страницу, если он еще не готов.
+     *
+     * @param id уникальный идентификатор отчета
+     * @return HTML-строка с содержимым отчета или статусом
+     */
     public String getReportContent(Long id) {
         Report report = reportRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Отчет не найден"));
@@ -51,6 +72,11 @@ public class ReportService {
         return report.getContent();
     }
 
+    /**
+     * Запускает асинхронную генерацию статистического отчета.
+     *
+     * @param reportId уникальный идентификатор отчета
+     */
     @Async
     public void generateReportAsync(Long reportId) {
         CompletableFuture.runAsync(() -> {

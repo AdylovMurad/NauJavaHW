@@ -7,12 +7,21 @@ import ru.murad.NauJava.entity.User;
 import ru.murad.NauJava.repository.UserRepository;
 import ru.murad.NauJava.exception.ResourceNotFoundException;
 
+/**
+ * Реализация сервиса управления пользователями.
+ */
 @Service
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * Конструктор для внедрения зависимостей.
+     *
+     * @param userRepository  репозиторий пользователей
+     * @param passwordEncoder кодировщик паролей
+     */
     public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
