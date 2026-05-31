@@ -1,14 +1,18 @@
 package ru.murad.SmartLibrary;
 
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.junit.jupiter.api.condition.EnabledIfSystemProperty;
 
 import java.time.Duration;
 
@@ -26,7 +30,12 @@ public class LoginUiTest extends BookGeneratorTest {
     @BeforeEach
     public void setUp() {
         super.setUp();
-        driver = new ChromeDriver();
+        
+        ChromeOptions options = new ChromeOptions();
+        options.addArguments("--headless=new");
+        options.addArguments("--remote-allow-origins=*");
+        
+        driver = new ChromeDriver(options);
         wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         baseUrl = "http://localhost:" + port;
     }
@@ -40,15 +49,14 @@ public class LoginUiTest extends BookGeneratorTest {
 
     @Test
     public void testLoginAndLogout() {
-        String afterLoginContent = login("admin", "admin");
+        String afterLoginContent = login("admin", "adminpass");
         Assertions.assertNotNull(afterLoginContent);
-        Assertions.assertTrue(driver.getCurrentUrl().equals(baseUrl + "/") || afterLoginContent.contains("api"));
-
+        Assertions.assertTrue(driver.getCurrentUrl().contains("/ui/books"));
 
         String afterLogoutContent = logout();
         Assertions.assertNotNull(afterLogoutContent);
-        Assertions.assertTrue(afterLogoutContent.contains("You have been signed out")
-                || driver.getCurrentUrl().contains("login?logout"));
+        Assertions.assertTrue(driver.getCurrentUrl().contains("login?logout") ||
+                afterLogoutContent.contains("Вы успешно вышли из системы"));
     }
 
     @Test
@@ -63,14 +71,13 @@ public class LoginUiTest extends BookGeneratorTest {
         var passwordField = driver.findElement(By.id("password"));
         passwordField.sendKeys("wrongPass");
 
-        var loginButton = driver.findElement(By.className("primary"));
+        var loginButton = driver.findElement(By.className("btn-primary"));
         loginButton.click();
 
         wait.until(ExpectedConditions.urlContains("/login?error"));
 
         var pageContent = driver.getPageSource();
-        Assertions.assertTrue(pageContent.contains("Invalid credentials")
-                || pageContent.contains("Bad credentials"));
+        Assertions.assertTrue(pageContent.contains("Неверное имя пользователя или пароль"));
     }
 
     private String login(String user, String pass) {
@@ -84,19 +91,19 @@ public class LoginUiTest extends BookGeneratorTest {
         var passwordField = driver.findElement(By.id("password"));
         passwordField.sendKeys(pass);
 
-        var loginButton = driver.findElement(By.className("primary"));
+        var loginButton = driver.findElement(By.className("btn-primary"));
         loginButton.click();
 
-        wait.until(ExpectedConditions.urlToBe(baseUrl + "/"));
+        wait.until(ExpectedConditions.not(ExpectedConditions.urlContains("/login")));
 
         return driver.getPageSource();
     }
 
     private String logout() {
-        driver.get(baseUrl + "/logout");
+        driver.get(baseUrl + "/ui/profile");
 
         var logoutButton = wait.until(
-                ExpectedConditions.elementToBeClickable(By.className("primary"))
+                ExpectedConditions.elementToBeClickable(By.cssSelector("form[action='/logout'] button"))
         );
         logoutButton.click();
 
