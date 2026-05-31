@@ -17,7 +17,7 @@ public class Loan {
     private LocalDateTime returnDeadline;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "varchar(255)")
     private LoanStatus status;
 
     @ManyToOne

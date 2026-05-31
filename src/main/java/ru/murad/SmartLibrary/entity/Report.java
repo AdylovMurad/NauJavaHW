@@ -11,6 +11,7 @@ public class Report {
     private Long id;
 
     @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "varchar(255)")
     private ReportStatus status;
 
     @Column(columnDefinition = "TEXT")
