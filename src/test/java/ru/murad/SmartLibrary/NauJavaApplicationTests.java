@@ -1,10 +1,8 @@
 package ru.murad.SmartLibrary;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class NauJavaApplicationTests {
+class NauJavaApplicationTests extends BaseIntegrationTest {
 
 	@Test
 	void contextLoads() {
