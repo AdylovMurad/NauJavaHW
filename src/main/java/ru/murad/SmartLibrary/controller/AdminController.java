@@ -284,7 +284,13 @@ public class AdminController {
      */
     @GetMapping("/genres")
     public String genresPage(Model model) {
-        model.addAttribute("genres", genreRepository.findAll());
+        List<Genre> genres = genreRepository.findAll();
+        double avgPopularity = genres.isEmpty() ? 0.0 : genres.stream()
+                .mapToDouble(g -> g.getPopularityIndex() != null ? g.getPopularityIndex() : 0)
+                .average()
+                .orElse(0.0);
+        model.addAttribute("genres", genres);
+        model.addAttribute("avgPopularity", avgPopularity);
         return "admin/genres";
     }
 
@@ -465,6 +471,7 @@ public class AdminController {
 
         if (loan.getStatus() == LoanStatus.BORROWED || loan.getStatus() == LoanStatus.OVERDUE) {
             loan.setStatus(LoanStatus.RETURNED);
+            loan.setLoanDate(LocalDateTime.now());
             loanRepository.save(loan);
 
             Book book = loan.getBook();

@@ -89,7 +89,7 @@
                                 <div>
                                     <h6 class="card-title">Средний индекс</h6>
                                     <h2 class="mb-0"
-                                        th:text="${#lists.isEmpty(genres) ? 0 : #numbers.formatDecimal(genres.![popularityIndex != null ? popularityIndex : 0].sum() / #lists.size(genres), 0, 'COMMA')}">
+                                        th:text="${#numbers.formatDecimal(avgPopularity, 1, 1)}">
                                         0
                                     </h2>
                                 </div>
