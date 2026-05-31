@@ -110,7 +110,7 @@
                             <span th:if="${loan.returnDeadline != null}" th:text="${#temporals.format(loan.returnDeadline, 'dd.MM.yyyy')}"></span>
                             <span th:unless="${loan.returnDeadline != null}" class="text-muted">—</span>
                             <!-- ИСПРАВЛЕНО: условие для предупреждения о скором возврате -->
-                            <span th:if="${loan.returnDeadline != null && loan.status == 'BORROWED' && #temporals.isBefore(#temporals.createNow(), #temporals.plusDays(loan.returnDeadline, -2))}"
+                            <span th:if="${loan.returnDeadline != null && loan.status == 'BORROWED' && T(java.time.LocalDateTime).now().isAfter(loan.returnDeadline.minusDays(3)) && T(java.time.LocalDateTime).now().isBefore(loan.returnDeadline)}"
                                   class="badge bg-warning text-dark ms-1" 
                                   title="Осталось меньше 3 дней">
                                 <i class="bi bi-hourglass-split"></i> Скоро

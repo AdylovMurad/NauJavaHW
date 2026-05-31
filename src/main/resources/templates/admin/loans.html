@@ -180,7 +180,7 @@
                                         <td>
                                             <i class="bi bi-calendar-exclamation"></i>
                                             <span th:text="${#temporals.format(loan.returnDeadline, 'dd.MM.yyyy')}"></span>
-                                            <div th:if="${loan.returnDeadline != null && #temporals.isBefore(#temporals.createNow(), #temporals.plusDays(loan.returnDeadline, -2))}"
+                                            <div th:if="${loan.returnDeadline != null && T(java.time.LocalDateTime).now().isAfter(loan.returnDeadline.minusDays(2)) && T(java.time.LocalDateTime).now().isBefore(loan.returnDeadline)}"
                                                  class="small text-warning">
                                                 <i class="bi bi-hourglass-split"></i> Скоро истекает
                                             </div>
@@ -244,11 +244,11 @@
                                         <td>
                                             <i class="bi bi-calendar-exclamation"></i>
                                             <span th:text="${#temporals.format(loan.returnDeadline, 'dd.MM.yyyy')}"></span>
-                                            <div th:if="${loan.returnDeadline != null && #temporals.isBefore(loan.returnDeadline, #temporals.createNow())}"
+                                            <div th:if="${loan.returnDeadline != null && loan.returnDeadline.isBefore(T(java.time.LocalDateTime).now())}"
                                                  class="small text-danger">
                                                 <i class="bi bi-clock-history"></i> Просрочена!
                                             </div>
-                                        \n</td>
+                                        </td>
                                         <td>
                                             <form th:action="@{/admin/loans/return}" method="post" class="mb-0">
                                                 <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
@@ -313,7 +313,7 @@
                                             <th:block th:if="${loan.returnDeadline != null}">
                                                 <span class="badge bg-danger">
                                                     <i class="bi bi-clock"></i>
-                                                    <span th:text="${#temporals.daysBetween(loan.returnDeadline, #temporals.createNow())}"></span> дней
+                                                    <span th:text="${T(java.time.temporal.ChronoUnit).DAYS.between(loan.returnDeadline, T(java.time.LocalDateTime).now())}"></span> дней
                                                 </span>
                                             </th:block>
                                             <th:block th:unless="${loan.returnDeadline != null}">
@@ -349,9 +349,11 @@
     document.addEventListener('DOMContentLoaded', function() {
         const borrowedRows = document.querySelectorAll('#borrowed tbody tr');
         borrowedRows.forEach(row => {
-            const deadlineCell = row.cells[4];
-            if (deadlineCell && deadlineCell.querySelector('.text-danger')) {
-                row.classList.add('table-danger');
+            if (row.cells && row.cells.length > 4) {
+                const deadlineCell = row.cells[4];
+                if (deadlineCell && deadlineCell.querySelector('.text-danger')) {
+                    row.classList.add('table-danger');
+                }
             }
         });
     });
