@@ -45,14 +45,13 @@ DB_PASSWORD=docker_password java -jar target/NauJava-0.0.1-SNAPSHOT.jar
 
 ## Тестирование проекта
 
-1. Запуск стандартных тестов (Юнит-тесты + Интеграция с Testcontainers)
-Интеграционные тесты автоматически запустят временный контейнер PostgreSQL в Docker:
+1. Запуск стандартных тестов (юнит-тесты + интеграционные с Testcontainers с PostgreSQL):
 ```bash
 ./mvnw clean test
 ```
-2. Запуск интеграционных тестов вместе с UI-тестами (Selenium):
+2. Запуск всех тестов (включая UI на Selenium):
 ```bash
-DOCKER_API_VERSION=1.40 ./mvnw clean test -Dui.tests=true
+./mvnw clean test -Dui.tests=true
 ```
 
 ## Учетные данные для входа (По умолчанию)
