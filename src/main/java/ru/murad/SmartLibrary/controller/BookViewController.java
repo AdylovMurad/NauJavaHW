@@ -118,8 +118,7 @@ public class BookViewController {
         loan.setReturnDeadline(LocalDateTime.now().plusDays(14));
         loanRepository.save(loan);
 
-        model.addAttribute("message", "Книга успешно забронирована");
-        return showAllBooks(model, null, null, null);
+        return "redirect:/ui/profile";
     }
 
     /**

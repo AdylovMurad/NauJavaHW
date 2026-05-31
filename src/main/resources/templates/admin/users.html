@@ -88,7 +88,7 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 class="card-title">Администраторы</h6>
-                                    <h2 class="mb-0" th:text="${#lists.size(users.?[role == 'ROLE_ADMIN'])}">0</h2>
+                                    <h2 class="mb-0" th:text="${#lists.size(users.?[role.name() == 'ROLE_ADMIN'])}">0</h2>
                                 </div>
                                 <i class="bi bi-shield-lock fs-1 opacity-50"></i>
                             </div>
@@ -101,7 +101,7 @@
                             <div class="d-flex justify-content-between align-items-center">
                                 <div>
                                     <h6 class="card-title">Обычные пользователи</h6>
-                                    <h2 class="mb-0" th:text="${#lists.size(users.?[role == 'ROLE_USER'])}">0</h2>
+                                    <h2 class="mb-0" th:text="${#lists.size(users.?[role.name() == 'ROLE_USER'])}">0</h2>
                                 </div>
                                 <i class="bi bi-person fs-1 opacity-50"></i>
                             </div>
@@ -124,9 +124,9 @@
                         <div class="col-md-3">
                             <label class="form-label">Фильтр по роли</label>
                             <select class="form-select" id="roleFilter">
-                                <option value="all">Все пользователи</option>
-                                <option value="ADMIN">Администраторы</option>
-                                <option value="USER">Обычные пользователи</option>
+                                <option value="">Все пользователи</option>
+                                <option value="ROLE_ADMIN">Администраторы</option>
+                                <option value="ROLE_USER">Обычные пользователи</option>
                             </select>
                         </div>
                         <div class="col-md-4">
@@ -190,12 +190,12 @@
                                 <td th:text="${user.firstName != null ? user.firstName : '—'}"></td>
                                 <td th:text="${user.lastName != null ? user.lastName : '—'}"></td>
                                 <td>
-                                    <span th:switch="${user.role}" class="badge"
-                                          th:classappend="${user.role == 'ADMIN' ? 'bg-danger' : 'bg-primary'}">
-                                        <i th:switch="${user.role}" class="bi"
-                                           th:case="'ADMIN'" th:class="'bi-shield-lock'"></i>
-                                        <i th:case="'USER'" th:class="'bi-person'"></i>
-                                        <span th:text="${user.role}"></span>
+                                    <span th:switch="${user.role.name()}" class="badge"
+                                          th:classappend="${user.role.name() == 'ROLE_ADMIN' ? 'bg-danger' : 'bg-primary'}">
+                                        <i th:switch="${user.role.name()}" class="bi"
+                                           th:case="'ROLE_ADMIN'" th:class="'bi-shield-lock'"></i>
+                                        <i th:case="'ROLE_USER'" th:class="'bi-person'"></i>
+                                        <span th:text="${user.role.name()}"></span>
                                     </span>
                                 </td>
                                 <td>
@@ -440,7 +440,7 @@
                 email.includes(searchTerm) ||
                 firstname.includes(searchTerm) ||
                 lastname.includes(searchTerm);
-            const matchesRole = roleFilter === 'all' || role === roleFilter;
+            const matchesRole = roleFilter === '' || role === roleFilter;
 
             row.style.display = matchesSearch && matchesRole ? '' : 'none';
         });
@@ -448,7 +448,7 @@
 
     function resetFilters() {
         document.getElementById('searchInput').value = '';
-        document.getElementById('roleFilter').value = 'all';
+        document.getElementById('roleFilter').value = '';
         filterUsers();
     }
 

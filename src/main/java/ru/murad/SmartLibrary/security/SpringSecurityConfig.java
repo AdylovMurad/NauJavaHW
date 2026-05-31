@@ -29,27 +29,39 @@ public class SpringSecurityConfig {
             .csrf(csrf -> csrf
                 .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
             )
-                .authorizeHttpRequests((authz) -> authz
-                        .requestMatchers("/registration", "/login", "/logout", "/error").permitAll()
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").hasAuthority(ru.murad.SmartLibrary.entity.UserRole.ROLE_ADMIN.name())
-                        .requestMatchers("/delete/**").hasAuthority(ru.murad.SmartLibrary.entity.UserRole.ROLE_ADMIN.name())
-                        .requestMatchers("/report/**").hasAuthority(ru.murad.SmartLibrary.entity.UserRole.ROLE_ADMIN.name())
-                    .requestMatchers("/admin/**").hasAuthority(UserRole.ROLE_ADMIN.name())
-                    .requestMatchers("/api/users/**").hasAuthority(UserRole.ROLE_ADMIN.name())
-                    .requestMatchers(HttpMethod.POST, "/api/books/**", "/api/authors/**", "/api/genres/**")
+            .authorizeHttpRequests((authz) -> authz
+                .requestMatchers("/registration", "/login", "/logout", "/error").permitAll()
+                .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").hasAuthority(UserRole.ROLE_ADMIN.name())
+                .requestMatchers("/delete/**").hasAuthority(UserRole.ROLE_ADMIN.name())
+                .requestMatchers("/report/**").hasAuthority(UserRole.ROLE_ADMIN.name())
+                .requestMatchers("/admin/**").hasAuthority(UserRole.ROLE_ADMIN.name())
+                .requestMatchers("/api/users/**").hasAuthority(UserRole.ROLE_ADMIN.name())
+                .requestMatchers(HttpMethod.POST, "/api/books/**", "/api/authors/**", "/api/genres/**")
                     .hasAuthority(UserRole.ROLE_ADMIN.name())
-                    .requestMatchers(HttpMethod.PUT, "/api/books/**", "/api/authors/**", "/api/genres/**")
+                .requestMatchers(HttpMethod.PUT, "/api/books/**", "/api/authors/**", "/api/genres/**")
                     .hasAuthority(UserRole.ROLE_ADMIN.name())
-                    .requestMatchers(HttpMethod.DELETE, "/api/books/**", "/api/authors/**", "/api/genres/**")
+                .requestMatchers(HttpMethod.DELETE, "/api/books/**", "/api/authors/**", "/api/genres/**")
                     .hasAuthority(UserRole.ROLE_ADMIN.name())
-                        .requestMatchers("/api/loans/admin/**").hasAuthority(UserRole.ROLE_ADMIN.name())
-                        .requestMatchers("/api/books/admin").hasAuthority(UserRole.ROLE_ADMIN.name())
-
-                        .anyRequest().authenticated()
-                )
-                .httpBasic(Customizer.withDefaults())
-                .formLogin(Customizer.withDefaults())
-                .logout(org.springframework.security.config.annotation.web.configurers.LogoutConfigurer::permitAll);
+                .requestMatchers("/api/loans/admin/**").hasAuthority(UserRole.ROLE_ADMIN.name())
+                .requestMatchers("/api/books/admin").hasAuthority(UserRole.ROLE_ADMIN.name())
+                .requestMatchers("/ui/**").authenticated()
+                .anyRequest().authenticated()
+            )
+            .httpBasic(Customizer.withDefaults())
+            .formLogin(form -> form
+                .loginPage("/login")
+                .loginProcessingUrl("/login")
+                .defaultSuccessUrl("/ui/books", true)
+                .failureUrl("/login?error=true")
+                .permitAll()
+            )
+            .logout(logout -> logout
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/login?logout=true")
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID")
+                .permitAll()
+            );
 
         return http.build();
     }

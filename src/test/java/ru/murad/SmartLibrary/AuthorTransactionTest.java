@@ -3,6 +3,8 @@ package ru.murad.SmartLibrary;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.transaction.annotation.Transactional;
 import ru.murad.SmartLibrary.entity.Author;
 import ru.murad.SmartLibrary.entity.Book;
 import ru.murad.SmartLibrary.repository.AuthorRepository;
@@ -11,12 +13,16 @@ import ru.murad.SmartLibrary.service.AuthorService;
 
 import java.util.UUID;
 
+@SpringBootTest
+@Transactional
 class AuthorTransactionTest extends BaseIntegrationTest {
 
     @Autowired
     private AuthorService authorService;
+    
     @Autowired
     private AuthorRepository authorRepository;
+    
     @Autowired
     private BookRepository bookRepository;
 
@@ -24,12 +30,13 @@ class AuthorTransactionTest extends BaseIntegrationTest {
     void testDeleteAuthorWithBooksSuccess() {
         Author author = new Author();
         author.setFullName("Автор для удаления " + UUID.randomUUID());
-        authorRepository.save(author);
+        author = authorRepository.save(author);
 
         Book book = new Book();
         book.setTitle("Книга для удаления");
         book.setAuthor(author);
-        bookRepository.save(book);
+        book.setAvailableCount(1);
+        book = bookRepository.save(book);
 
         authorService.deleteAuthorWithBooks(author.getId());
 
@@ -50,7 +57,7 @@ class AuthorTransactionTest extends BaseIntegrationTest {
     void testDeleteAuthorWithoutBooksSuccess() {
         Author lonelyAuthor = new Author();
         lonelyAuthor.setFullName("Одинокий Автор " + UUID.randomUUID());
-        authorRepository.save(lonelyAuthor);
+        lonelyAuthor = authorRepository.save(lonelyAuthor);
         Long id = lonelyAuthor.getId();
 
         Assertions.assertDoesNotThrow(() -> {

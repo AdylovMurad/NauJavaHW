@@ -3,6 +3,7 @@ package ru.murad.SmartLibrary.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +18,7 @@ import ru.murad.SmartLibrary.entity.Loan;
 import ru.murad.SmartLibrary.entity.LoanStatus;
 import ru.murad.SmartLibrary.entity.Report;
 import ru.murad.SmartLibrary.entity.User;
+import ru.murad.SmartLibrary.entity.UserRole;
 import ru.murad.SmartLibrary.repository.AuthorRepository;
 import ru.murad.SmartLibrary.repository.BookRepository;
 import ru.murad.SmartLibrary.repository.GenreRepository;
@@ -49,6 +51,7 @@ public class AdminController {
     private final ReportService reportService;
     private final ReportRepository reportRepository;
     private final LoanStatusService loanStatusService;
+    private final PasswordEncoder passwordEncoder;
 
     /**
      * Конструктор контроллера AdminController.
@@ -62,6 +65,7 @@ public class AdminController {
      * @param reportService      сервис управления отчетами
      * @param reportRepository   репозиторий отчетов
      * @param loanStatusService  сервис контроля статусов выдачи
+     * @param passwordEncoder    кодировщик паролей
      */
     public AdminController(BookRepository bookRepository,
                            AuthorRepository authorRepository,
@@ -71,7 +75,8 @@ public class AdminController {
                            AuthorService authorService,
                            ReportService reportService,
                            ReportRepository reportRepository,
-                           LoanStatusService loanStatusService) {
+                           LoanStatusService loanStatusService,
+                           PasswordEncoder passwordEncoder) {
         this.bookRepository = bookRepository;
         this.authorRepository = authorRepository;
         this.genreRepository = genreRepository;
@@ -81,6 +86,7 @@ public class AdminController {
         this.reportService = reportService;
         this.reportRepository = reportRepository;
         this.loanStatusService = loanStatusService;
+        this.passwordEncoder = passwordEncoder;
     }
 
     /**
@@ -270,6 +276,12 @@ public class AdminController {
      * @param model объект модели Thymeleaf
      * @return путь до шаблона "admin/genres"
      */
+    /**
+     * Отображает страницу управления жанрами библиотеки.
+     *
+     * @param model объект модели Thymeleaf
+     * @return путь до шаблона "admin/genres"
+     */
     @GetMapping("/genres")
     public String genresPage(Model model) {
         model.addAttribute("genres", genreRepository.findAll());
@@ -321,6 +333,84 @@ public class AdminController {
         Iterable<User> users = userRepository.findAll();
         model.addAttribute("users", users);
         return "admin/users";
+    }
+
+    /**
+     * Создает нового пользователя (администратор).
+     *
+     * @param username логин пользователя
+     * @param password пароль пользователя
+     * @param email email пользователя
+     * @param firstName имя пользователя (необязательно)
+     * @param lastName фамилия пользователя (необязательно)
+     * @param role роль пользователя (USER или ADMIN)
+     * @return перенаправление на страницу пользователей
+     */
+    @PostMapping("/users")
+    public String createUser(@RequestParam String username,
+                            @RequestParam String password,
+                            @RequestParam String email,
+                            @RequestParam(required = false) String firstName,
+                            @RequestParam(required = false) String lastName,
+                            @RequestParam String role) {
+        User user = new User();
+        user.setUsername(username);
+        user.setPassword(passwordEncoder.encode(password));
+        user.setEmail(email);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setRole(UserRole.valueOf("ROLE_" + role));
+        userRepository.save(user);
+        logger.info("Admin created user id={} username='{}'", user.getId(), user.getUsername());
+        return "redirect:/admin/users";
+    }
+
+    /**
+     * Удаляет пользователя по его идентификатору.
+     *
+     * @param id идентификатор пользователя
+     * @return перенаправление на страницу пользователей
+     */
+    @PostMapping("/users/{id}/delete")
+    public String deleteUser(@PathVariable Long id) {
+        userRepository.deleteById(id);
+        logger.info("Admin deleted user id={}", id);
+        return "redirect:/admin/users";
+    }
+
+    /**
+     * Обновляет информацию о пользователе (администратор).
+     *
+     * @param id идентификатор пользователя
+     * @param password новый пароль (необязательно)
+     * @param email новый email
+     * @param firstName новое имя
+     * @param lastName новая фамилия
+     * @param role новая роль
+     * @return перенаправление на страницу пользователей
+     */
+    @PostMapping("/users/{id}/update")
+    public String updateUser(@PathVariable Long id,
+                            @RequestParam(required = false) String password,
+                            @RequestParam String email,
+                            @RequestParam(required = false) String firstName,
+                            @RequestParam(required = false) String lastName,
+                            @RequestParam String role) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Пользователь не найден"));
+        
+        user.setEmail(email);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setRole(UserRole.valueOf("ROLE_" + role));
+        
+        if (password != null && !password.isEmpty()) {
+            user.setPassword(passwordEncoder.encode(password));
+        }
+        
+        userRepository.save(user);
+        logger.info("Admin updated user id={} username='{}'", user.getId(), user.getUsername());
+        return "redirect:/admin/users";
     }
 
     /**

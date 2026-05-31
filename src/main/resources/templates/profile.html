@@ -17,9 +17,17 @@
         <h1 class="h2">
             <i class="bi bi-person-badge"></i> Личный кабинет
         </h1>
-        <a th:href="@{/ui/books}" class="btn btn-outline-primary">
-            <i class="bi bi-arrow-left"></i> Вернуться к каталогу
-        </a>
+        <div class="btn-group" role="group">
+            <a th:href="@{/ui/books}" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-left"></i> Вернуться к каталогу
+            </a>
+            <form th:action="@{/logout}" method="post" class="d-inline">
+                <input type="hidden" th:if="${_csrf != null}" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                <button type="submit" class="btn btn-outline-danger">
+                    <i class="bi bi-box-arrow-right"></i> Выход
+                </button>
+            </form>
+        </div>
     </div>
 
     <!-- Карточка пользователя -->
@@ -77,28 +85,36 @@
                         <td>
                             <!-- Цветные бейджи для разных статусов -->
                             <span th:switch="${loan.status}" class="badge"
-                                  th:classappend="${loan.status == 'ACTIVE' ? 'bg-success' :
+                                  th:classappend="${loan.status == 'BORROWED' ? 'bg-success' :
                                                   loan.status == 'BOOKED' ? 'bg-warning text-dark' :
-                                                  loan.status == 'OVERDUE' ? 'bg-danger' : 'bg-secondary'}">
+                                                  loan.status == 'OVERDUE' ? 'bg-danger' :
+                                                  loan.status == 'RETURNED' ? 'bg-secondary' : 'bg-info'}">
                                 <i th:switch="${loan.status}" class="bi"
-                                   th:case="'ACTIVE'" th:class="'bi-check-circle-fill'"></i>
+                                   th:case="'BORROWED'" th:class="'bi-check-circle-fill'"></i>
                                 <i th:case="'BOOKED'" th:class="'bi-bookmark-fill'"></i>
                                 <i th:case="'OVERDUE'" th:class="'bi-exclamation-triangle-fill'"></i>
+                                <i th:case="'RETURNED'" th:class="'bi-check2-all'"></i>
                                 <i th:case="*" th:class="'bi-info-circle-fill'"></i>
                                 <span th:text="${loan.status}"></span>
                             </span>
                         </td>
                         <td>
                             <i class="bi bi-calendar3 me-1"></i>
-                            <span th:text="${#temporals.format(loan.loanDate, 'dd.MM.yyyy HH:mm')}"></span>
+                            <!-- ИСПРАВЛЕНО: используем #temporals.format для LocalDateTime -->
+                            <span th:if="${loan.loanDate != null}" th:text="${#temporals.format(loan.loanDate, 'dd.MM.yyyy HH:mm')}"></span>
+                            <span th:unless="${loan.loanDate != null}" class="text-muted">—</span>
                         </td>
                         <td>
                             <i class="bi bi-calendar-exclamation me-1"></i>
-                            <span th:text="${#temporals.format(loan.returnDeadline, 'dd.MM.yyyy')}"></span>
-                            <!-- Иконка-предупреждение, если срок скоро истекает (можно настроить) -->
-                            <i th:if="${loan.returnDeadline != null && #temporals.isAfter(#temporals.createNow(), #temporals.plusDays(#temporals.createNow(), 2))}"
-                               class="bi bi-hourglass-split text-warning ms-1"
-                               title="Осталось меньше 3 дней"></i>
+                            <!-- ИСПРАВЛЕНО: используем #temporals.format для LocalDateTime (только дата) -->
+                            <span th:if="${loan.returnDeadline != null}" th:text="${#temporals.format(loan.returnDeadline, 'dd.MM.yyyy')}"></span>
+                            <span th:unless="${loan.returnDeadline != null}" class="text-muted">—</span>
+                            <!-- ИСПРАВЛЕНО: условие для предупреждения о скором возврате -->
+                            <span th:if="${loan.returnDeadline != null && loan.status == 'BORROWED' && #temporals.isBefore(#temporals.createNow(), #temporals.plusDays(loan.returnDeadline, -2))}"
+                                  class="badge bg-warning text-dark ms-1" 
+                                  title="Осталось меньше 3 дней">
+                                <i class="bi bi-hourglass-split"></i> Скоро
+                            </span>
                         </td>
                     </tr>
                     </tbody>
@@ -107,13 +123,13 @@
         </div>
     </div>
 
-    <!-- Дополнительная информация (опционально) -->
+    <!-- Дополнительная информация -->
     <div class="mt-4 text-muted text-center small">
         <i class="bi bi-info-circle"></i> Если у вас есть вопросы по бронированию, обратитесь к библиотекарю
     </div>
 </div>
 
-<!-- Bootstrap JS (для возможных интерактивных элементов) -->
+<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

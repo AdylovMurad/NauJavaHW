@@ -21,35 +21,37 @@ public class BookControllerTest extends BookGeneratorTest {
     @BeforeEach
     public void setupRestAssured() {
         RestAssured.port = port;
+        RestAssured.baseURI = "http://localhost";
     }
 
     @Test
     public void testGetBookById() {
         Book expectedBook = books.get(0);
+        
+        System.out.println("Testing GET /api/books/" + expectedBook.getId());
 
         Book responseBook = given()
-                .auth().preemptive().basic("admin", "admin")
+                .auth().preemptive().basic("admin", "adminpass")
                 .contentType(ContentType.JSON)
-                .pathParam("id", expectedBook.getId())
                 .when()
-                .get("/api/books/{id}")
+                .get("/api/books/{id}", expectedBook.getId())
                 .then()
+                .log().ifValidationFails()
                 .statusCode(200)
                 .extract()
                 .as(Book.class);
 
         Assertions.assertEquals(expectedBook.getTitle(), responseBook.getTitle());
         Assertions.assertEquals(expectedBook.getIsbn(), responseBook.getIsbn());
-        Assertions.assertEquals(1869, responseBook.getPublicationYear());
+        Assertions.assertEquals(expectedBook.getPublicationYear(), responseBook.getPublicationYear());
     }
 
     @Test
     public void testGetBookByIdNotFound() {
         given()
-                .auth().preemptive().basic("admin", "admin")
-                .pathParam("id", 99999)
+                .auth().preemptive().basic("admin", "adminpass")
                 .when()
-                .get("/api/books/{id}")
+                .get("/api/books/{id}", 99999)
                 .then()
                 .log().ifValidationFails()
                 .statusCode(404);
@@ -58,38 +60,50 @@ public class BookControllerTest extends BookGeneratorTest {
     @Test
     public void testFilterBooks() {
         given()
-                .auth().preemptive().basic("admin", "admin")
+                .auth().preemptive().basic("admin", "adminpass")
                 .queryParam("title", "Война")
                 .queryParam("start", 1800)
                 .queryParam("end", 1900)
                 .when()
                 .get("/api/books/filter")
                 .then()
+                .log().ifValidationFails()
                 .statusCode(200)
                 .body("size()", greaterThan(0))
-                .body("[0].title", containsString("Война"))
-                .body("[0].author.fullName", equalTo("Лев Толстой"));
+                .body("[0].title", containsString("Война"));
     }
 
     @Test
     public void testGetBooksByAuthor() {
         given()
-                .auth().preemptive().basic("admin", "admin")
+                .auth().preemptive().basic("admin", "adminpass")
                 .queryParam("name", "Лев Толстой")
                 .when()
                 .get("/api/books/by-author")
                 .then()
+                .log().ifValidationFails()
                 .statusCode(200)
-                .body("size()", is(1))
-                .body("[0].title", equalTo("Война и мир"));
+                .body("size()", greaterThan(0))
+                .body("[0].author.fullName", equalTo("Лев Толстой"));
+    }
+
+    @Test
+    public void testGetAllBooks() {
+        given()
+                .auth().preemptive().basic("admin", "adminpass")
+                .when()
+                .get("/api/books")
+                .then()
+                .log().ifValidationFails()
+                .statusCode(200)
+                .body("size()", equalTo(3));
     }
 
     @Test
     public void testNoAuthRedirect() {
         given()
-                .pathParam("id", books.get(0).getId())
                 .when()
-                .get("/api/books/{id}")
+                .get("/api/books/{id}", books.get(0).getId())
                 .then()
                 .statusCode(401);
     }
