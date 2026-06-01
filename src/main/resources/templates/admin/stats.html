@@ -275,16 +275,14 @@
                                     <i class="bi bi-percent"></i> Процент возвратов
                                 </td>
                                 <td>
-                                    <span th:if="${borrowed + returned > 0}" th:text="${#numbers.formatDecimal((returned / (borrowed + returned)) * 100, 1, 'COMMA')}"></span>
+                                    <span th:if="${borrowed + returned > 0}" th:text="${(returned * 100 / (borrowed + returned)).intValue()}"></span>
                                     <span th:if="${borrowed + returned <= 0}">—</span>%
                                 </td>
                                 <td>
                                     <div class="progress" style="height: 20px;" th:if="${borrowed + returned > 0}">
                                         <div class="progress-bar bg-success"
-                                             th:style="'width: ' + ((returned / (borrowed + returned)) * 100) + '%'"
-                                             th:attr="aria-valuenow=${ (returned / (borrowed + returned)) * 100}"
-                                             aria-valuemin="0" aria-valuemax="100">
-                                            <span th:text="${#numbers.formatDecimal((returned / (borrowed + returned)) * 100, 1, 'COMMA')} + '%'"></span>
+                                             th:style="|width: ${(returned * 100 / (borrowed + returned)).intValue()}%|">
+                                            <span th:text="${(returned * 100 / (borrowed + returned)).intValue()} + '%'"></span>
                                         </div>
                                     </div>
                                     <span th:if="${borrowed + returned <= 0}" class="text-muted">Нет данных</span>
